@@ -1,7 +1,7 @@
 import Router from '@koa/router';
-import { QuoteParam, Protocol } from './types';
+import { QuoteParam } from './types';
 import { quoteHandler } from './quoteHandler';
-import { provider, makeBigNumber } from './utils';
+import { provider } from './utils';
 
 const router = new Router();
 

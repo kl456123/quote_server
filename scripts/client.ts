@@ -1,10 +1,13 @@
 import axios from 'axios';
-import { ethers } from 'ethers';
 import { QuoteResponse, QuoteParam } from '../src/types';
 import { formatUnits, parseUnits } from '../src/utils';
 
-async function test() {
-  const url = 'http://localhost:3000/quote';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const url = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}/quote`;
+
+async function testUniswapV2() {
   const blockNumber = 14000000;
   const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
   const protocol = 0;
@@ -26,7 +29,6 @@ async function test() {
 }
 
 async function testCurve() {
-  const url = 'http://localhost:3000/quote';
   const blockNumber = 14000000;
   const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
   const protocol = 2;
@@ -42,7 +44,6 @@ async function testCurve() {
     poolAddress,
   };
   const res = await axios.get(url, { params: query });
-  console.log(res.config.url);
   if (res.status != 200) {
     console.log('get failed');
   }
@@ -50,20 +51,5 @@ async function testCurve() {
   console.log(formatUnits(quoteRes.outputAmount, 6));
 }
 
-async function main() {
-  const provider = ethers.providers.getDefaultProvider();
-  const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
-  const encodedParams = ethers.utils.defaultAbiCoder.encode(
-    ['int128', 'int128', 'uint256'],
-    [1, 2, '1000000000000000000000']
-  );
-  const data = '0x07211ef7' + encodedParams.slice(2);
-  const res = await provider.call({
-    to: '0xecd5e75afb02efa118af914515d6521aabd189f1',
-    data,
-  });
-  console.log(ethers.utils.defaultAbiCoder.decode(['uint256'], res).toString());
-}
-
+testUniswapV2();
 testCurve();
-// main()
