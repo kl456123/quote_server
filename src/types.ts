@@ -5,6 +5,10 @@ export enum Protocol {
   UniswapV3,
   Curve,
   CurveV2,
+  Balancer,
+  BalancerV2,
+  Bancor,
+  Kyber,
 }
 
 export type QuoteParam = {

@@ -1,8 +1,10 @@
 import { ethers } from 'ethers';
-import { UniswapV2Router02__factory } from './typechain';
-import { UNISWAPV2_ROUTER } from './constants';
+import { UniswapV2Router02__factory, BPool__factory, BalancerSampler__factory } from './typechain';
+import { UNISWAPV2_ROUTER, SAMPLER_ADDRESS, Zero } from './constants';
 import { CurveFunctionSelectors, getCurveInfosForPool } from './markets/curve';
 import { QuoteParam, Protocol } from './types';
+
+
 
 export const quoteHandler = async (
   quoteParam: QuoteParam,
@@ -44,8 +46,36 @@ export const quoteHandler = async (
       );
       return outputAmount;
     }
+      case Protocol.Balancer: {
+          const sampler = BalancerSampler__factory.connect(SAMPLER_ADDRESS, provider);
+          const poolAddress = quoteParam.poolAddress as string;
+          const outputAmounts = await sampler.sampleSellsFromBalancer(
+              poolAddress,
+              quoteParam.inputToken,
+              quoteParam.outputToken,
+              [quoteParam.inputAmount]
+          );
+
+          return outputAmounts[0];
+      }
+    case Protocol.BalancerV2: {
+          const outputAmount = Zero;
+          return outputAmount;
+      }
+    case Protocol.UniswapV3: {
+          const outputAmount = Zero;
+          return outputAmount;
+      }
+    case Protocol.Bancor: {
+          const outputAmount = Zero;
+          return outputAmount;
+      }
+    case Protocol.Kyber: {
+          const outputAmount = Zero;
+          return outputAmount;
+      }
     default: {
-      throw new Error(`unsupported protocol: ${quoteParam.protocol}`);
+      return null;
     }
   }
 };

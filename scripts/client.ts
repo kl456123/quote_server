@@ -51,5 +51,29 @@ async function testCurve() {
   console.log(formatUnits(quoteRes.outputAmount, 6));
 }
 
+async function testBalancer() {
+  const blockNumber = 14000000;
+  const inputAmount = parseUnits('1', 18).toString(); // 1 WETH
+  const protocol = 4;// balancer
+  const inputToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'; // WETH
+  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+  const poolAddress = '0xC351648240E9FC9213e8B6016e566F95C5Fa7909';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    blockNumber,
+    poolAddress,
+  };
+  const res = await axios.get(url, { params: query });
+  if (res.status != 200) {
+    console.log('get failed');
+  }
+  const quoteRes = res.data as QuoteResponse;
+  console.log(formatUnits(quoteRes.outputAmount, 6));
+}
+
 testUniswapV2();
 testCurve();
+testBalancer();
