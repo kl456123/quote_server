@@ -132,3 +132,20 @@ export function getCurveInfosForPool(poolAddress: string): CurveInfo {
   }
   return curveInfos[0];
 }
+
+export const UNKNOWN_METAPOOLS = new Map<string, string>();
+
+// Mainnet
+UNKNOWN_METAPOOLS.set(
+  '0xd632f22692fac7611d2aa1c0d552930d43caed3b',
+  '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
+); // alUSD
+
+UNKNOWN_METAPOOLS.set(
+  '0x43b4fdfd4ff969587185cdb6f0bd875c5fc83f8c',
+  '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
+); // alUSD
+UNKNOWN_METAPOOLS.set(
+  '0x87650d7bbfc3a9f10587d7778206671719d9910d',
+  '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
+); // OUSD

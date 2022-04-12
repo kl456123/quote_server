@@ -21,8 +21,8 @@ router.get('/quote', async ctx => {
       ? parseInt(query.blockNumber as string)
       : undefined,
     inputAmount: query.inputAmount as string,
-    inputToken: query.inputToken as string,
-    outputToken: query.outputToken as string,
+    inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
+    outputToken: (query.outputToken as string).toLowerCase(),
     protocol: parseInt(query.protocol as string),
     poolAddress: query.poolAddress as string,
   };
