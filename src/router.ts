@@ -27,10 +27,10 @@ router.get('/quote', async ctx => {
     poolAddress: query.poolAddress as string,
   };
   const outputAmount = await quoteHandler(quoteParam, provider);
-    if(!outputAmount){
-        ctx.body = `unsupported protocol: ${quoteParam.protocol}`;
-        return;
-    }
+  if (!outputAmount) {
+    ctx.body = `unsupported protocol: ${quoteParam.protocol}`;
+    return;
+  }
   ctx.body = {
     outputAmount: outputAmount.toString(),
   };

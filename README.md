@@ -17,12 +17,14 @@ yarn demo
 ```
 
 ## Devlopment
+
 add new quote handlers for more DEXes in `src/quoteHandler`
 
 TODO list
-- [X] UniswapV2
+
+- [x] UniswapV2
 - [ ] UniswapV3
-- [X] Curve
+- [x] Curve
 - [ ] CurveV2
 - [ ] Balancer
-- [ ] BalancerV2 
+- [ ] BalancerV2
