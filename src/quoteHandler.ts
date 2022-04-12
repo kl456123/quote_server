@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { UniswapV2Router02__factory, BPool__factory, BalancerSampler__factory } from './typechain';
+import { UniswapV2Router02__factory, BalancerSampler__factory } from './typechain';
 import { UNISWAPV2_ROUTER, SAMPLER_ADDRESS, Zero } from './constants';
 import { CurveFunctionSelectors, getCurveInfosForPool } from './markets/curve';
 import { QuoteParam, Protocol } from './types';
