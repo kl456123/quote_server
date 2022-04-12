@@ -4,21 +4,31 @@ import {
   BalancerSampler__factory,
   BalancerV2Sampler__factory,
   DMMRouter02__factory,
+  BancorNetwork__factory,
+  QuoterV2__factory,
+  UniswapV3Pool__factory,
 } from './typechain';
 import {
   UNISWAPV2_ROUTER,
   SAMPLER_ADDRESS,
   Zero,
   KYBER_ROUTER02,
-  KYBER_FACTORY_ADDRESS,
+  BANCOR_ADDRESS,
+  UNISWAPV3_QUOTER,
 } from './constants';
 import { CurveFunctionSelectors, getCurveInfosForPool } from './markets/curve';
 import { QuoteParam, Protocol } from './types';
+
+const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor];
 
 export const quoteHandler = async (
   quoteParam: QuoteParam,
   provider: ethers.providers.BaseProvider
 ) => {
+  if (!quoteParam.poolAddress && !nopoolAddrDEX.includes(quoteParam.protocol)) {
+    console.log(`poolAddress is not allowed for ${quoteParam.protocol}`);
+    return null;
+  }
   const poolAddress = quoteParam.poolAddress as string;
   switch (quoteParam.protocol) {
     case Protocol.UniswapV2: {
@@ -95,11 +105,36 @@ export const quoteHandler = async (
       return outputAmounts[0];
     }
     case Protocol.UniswapV3: {
-      const outputAmount = Zero;
+      const quoterv2 = QuoterV2__factory.connect(UNISWAPV3_QUOTER, provider);
+      const poolContract = await UniswapV3Pool__factory.connect(
+        poolAddress,
+        provider
+      );
+      const fee = await poolContract.fee();
+      const params = {
+        tokenIn: quoteParam.inputToken,
+        tokenOut: quoteParam.outputToken,
+        fee,
+        amountIn: quoteParam.inputAmount,
+        sqrtPriceLimitX96: 0,
+      };
+      const { amountOut: outputAmount } =
+        await quoterv2.callStatic.quoteExactInputSingle(params);
       return outputAmount;
     }
     case Protocol.Bancor: {
-      const outputAmount = Zero;
+      const bancorNetworkContract = BancorNetwork__factory.connect(
+        BANCOR_ADDRESS,
+        provider
+      );
+      const path = await bancorNetworkContract.conversionPath(
+        quoteParam.inputToken,
+        quoteParam.outputToken
+      );
+      const outputAmount = await bancorNetworkContract.rateByPath(
+        path,
+        quoteParam.inputAmount
+      );
       return outputAmount;
     }
     case Protocol.Kyber: {

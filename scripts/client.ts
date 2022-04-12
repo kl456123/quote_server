@@ -120,8 +120,55 @@ async function testKyberNetwork() {
   console.log(formatUnits(quoteRes.outputAmount, 6));
 }
 
-// testUniswapV2();
-// testCurve();
-// testBalancer();
-// testBalancerV2();
+async function testBancor() {
+  const blockNumber = 14000000;
+  const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
+  const protocol = 6; // bancor
+  const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
+  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+  // poolAddress is no need here.
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    blockNumber,
+  };
+  const res = await axios.get(url, { params: query });
+  if (res.status != 200) {
+    console.log('get failed');
+  }
+  const quoteRes = res.data as QuoteResponse;
+  console.log(formatUnits(quoteRes.outputAmount, 6));
+}
+
+async function testUniswapV3() {
+  const blockNumber = 14000000;
+  const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
+  const protocol = 6; // uniswapv3
+  const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
+  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+  const poolAddress = '0x5777d92f208679DB4b9778590Fa3CAB3aC9e2168';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    blockNumber,
+    poolAddress,
+  };
+  const res = await axios.get(url, { params: query });
+  if (res.status != 200) {
+    console.log('get failed');
+  }
+  const quoteRes = res.data as QuoteResponse;
+  console.log(formatUnits(quoteRes.outputAmount, 6));
+}
+
+testUniswapV2();
+testCurve();
+testBalancer();
+testBalancerV2();
 testKyberNetwork();
+testBancor();
+testUniswapV3();
