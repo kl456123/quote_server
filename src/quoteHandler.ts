@@ -7,7 +7,10 @@ import {
   BancorNetwork__factory,
   QuoterV2__factory,
   UniswapV3Pool__factory,
+  Vault__factory,
+  BPool__factory,
 } from './typechain';
+import { logger } from './logging';
 import {
   UNISWAPV2_ROUTER,
   SAMPLER_ADDRESS,
@@ -71,7 +74,7 @@ async function getCoinsList(
     const coin128Fn = curvePoolCoin128.coins.bind(curvePoolCoin128);
     coinAddr = await tryCall(coin128Fn, 0);
     if (!coinAddr) {
-      console.log(`Call to int128 coins failed for ${poolAddr}`);
+      logger.error(`Call to int128 coins failed for ${poolAddr}`);
     }
     while (coinAddr) {
       coinsAddr.push(coinAddr.toLowerCase());
@@ -104,10 +107,15 @@ export const quoteHandler = async (
   provider: ethers.providers.BaseProvider
 ) => {
   if (!quoteParam.poolAddress && !nopoolAddrDEX.includes(quoteParam.protocol)) {
-    console.log(`poolAddress is not allowed for ${quoteParam.protocol}`);
+    logger.error(`poolAddress is not allowed for ${quoteParam.protocol}`);
     return null;
   }
   const poolAddress = quoteParam.poolAddress as string;
+  // make sure all func called at the same blocknumber
+  if (!quoteParam.blockNumber) {
+    quoteParam.blockNumber = await provider.getBlockNumber();
+  }
+  const callOverrides = { blockTag: quoteParam.blockNumber };
   switch (quoteParam.protocol) {
     case Protocol.UniswapV2: {
       const uniswapv2_router = UniswapV2Router02__factory.connect(
@@ -118,7 +126,7 @@ export const quoteHandler = async (
       const outputAmounts = await uniswapv2_router.callStatic.getAmountsOut(
         quoteParam.inputAmount,
         path,
-        { blockTag: quoteParam.blockNumber }
+        callOverrides
       );
       return outputAmounts[outputAmounts.length - 1];
     }
@@ -137,11 +145,10 @@ export const quoteHandler = async (
         const baseCoinsAddr = await getCoinsList(basePoolAddr, provider);
         coinsAddr = coinsAddr.slice(-1).concat(baseCoinsAddr);
       }
-      console.log(coinsAddr);
       const fromTokenIdx = coinsAddr.indexOf(quoteParam.inputToken);
       const toTokenIdx = coinsAddr.indexOf(quoteParam.outputToken);
       if (fromTokenIdx === -1 || toTokenIdx === -1) {
-        console.log(`cannot trade tokens in the pool: ${to}`);
+        logger.error(`cannot trade tokens in the pool: ${to}`);
         return null;
       }
 
@@ -153,69 +160,98 @@ export const quoteHandler = async (
       if (useUnderlying) {
         try {
           // curvev1
-          outputAmount = await curvePool[
+          outputAmount = await curvePool.callStatic[
             'get_dy_underlying(int128,int128,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount);
+          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
         } catch {
           // curvev2
-          outputAmount = await curvePool[
+          outputAmount = await curvePool.callStatic[
             'get_dy_underlying(uint256,uint256,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount);
+          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
         }
       } else {
         try {
           // curvev1
-          outputAmount = await curvePool['get_dy(int128,int128,uint256)'](
-            fromTokenIdx,
-            toTokenIdx,
-            quoteParam.inputAmount
-          );
+          outputAmount = await curvePool.callStatic[
+            'get_dy(int128,int128,uint256)'
+          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
         } catch {
           // curvev2
-          outputAmount = await curvePool['get_dy(uint256,uint256,uint256)'](
-            fromTokenIdx,
-            toTokenIdx,
-            quoteParam.inputAmount
-          );
+          outputAmount = await curvePool.callStatic[
+            'get_dy(uint256,uint256,uint256)'
+          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
         }
       }
 
       return outputAmount;
     }
     case Protocol.Balancer: {
-      const sampler = BalancerSampler__factory.connect(
-        SAMPLER_ADDRESS,
-        provider
+      const bpoolContract = BPool__factory.connect(poolAddress, provider);
+      const poolState = await Promise.all([
+        bpoolContract.getBalance(quoteParam.inputToken, callOverrides),
+        bpoolContract.getDenormalizedWeight(
+          quoteParam.inputToken,
+          callOverrides
+        ),
+        bpoolContract.getBalance(quoteParam.outputToken, callOverrides),
+        bpoolContract.getDenormalizedWeight(
+          quoteParam.outputToken,
+          callOverrides
+        ),
+        bpoolContract.getSwapFee(callOverrides),
+      ]);
+      const takerTokenBalance = poolState[0];
+      const takerTokenWeight = poolState[1];
+      const makerTokenBalance = poolState[2];
+      const makerTokenWeight = poolState[3];
+      const swapFee = poolState[4];
+      const outputAmount = await bpoolContract.calcOutGivenIn(
+        takerTokenBalance,
+        takerTokenWeight,
+        makerTokenBalance,
+        makerTokenWeight,
+        quoteParam.inputAmount,
+        swapFee,
+        callOverrides
       );
-      const outputAmounts = await sampler.sampleSellsFromBalancer(
-        poolAddress,
-        quoteParam.inputToken,
-        quoteParam.outputToken,
-        [quoteParam.inputAmount]
-      );
-
-      return outputAmounts[0];
+      return outputAmount;
     }
+
     case Protocol.BalancerV2: {
-      const sampler = BalancerV2Sampler__factory.connect(
-        SAMPLER_ADDRESS,
-        provider
-      );
       const vault = '0xba12222222228d8ba445958a75a0704d566bf2c8';
       const iface = new ethers.utils.Interface([
         'function getPoolId()view returns (bytes32)',
       ]);
       const poolContract = new ethers.Contract(poolAddress, iface, provider);
       const poolId = await poolContract.getPoolId();
-      const poolInfo = { poolId, vault };
-      const outputAmounts = await sampler.callStatic.sampleSellsFromBalancerV2(
-        poolInfo,
-        quoteParam.inputToken,
-        quoteParam.outputToken,
-        [quoteParam.inputAmount]
+      const vaultContract = Vault__factory.connect(vault, provider);
+      const kind = 0;
+      const swaps = [
+        {
+          poolId,
+          assetInIndex: 0,
+          assetOutIndex: 1,
+          amount: quoteParam.inputAmount,
+          userData: '0x',
+        },
+      ];
+      const assets = [quoteParam.inputToken, quoteParam.outputToken];
+      const funds = {
+        sender: ethers.constants.AddressZero,
+        fromInternalBalance: false,
+        recipient: ethers.constants.AddressZero,
+        toInternalBalance: false,
+      };
+      const outputAmounts = await vaultContract.callStatic.queryBatchSwap(
+        kind,
+        swaps,
+        assets,
+        funds,
+        callOverrides
       );
-      return outputAmounts[0];
+      return outputAmounts[1].mul(-1);
     }
+
     case Protocol.UniswapV3: {
       const quoterv2 = QuoterV2__factory.connect(UNISWAPV3_QUOTER, provider);
       const poolContract = await UniswapV3Pool__factory.connect(
@@ -231,7 +267,7 @@ export const quoteHandler = async (
         sqrtPriceLimitX96: 0,
       };
       const { amountOut: outputAmount } =
-        await quoterv2.callStatic.quoteExactInputSingle(params);
+        await quoterv2.callStatic.quoteExactInputSingle(params, callOverrides);
       return outputAmount;
     }
     case Protocol.Bancor: {
@@ -239,13 +275,15 @@ export const quoteHandler = async (
         BANCOR_ADDRESS,
         provider
       );
-      const path = await bancorNetworkContract.conversionPath(
+      const path = await bancorNetworkContract.callStatic.conversionPath(
         quoteParam.inputToken,
-        quoteParam.outputToken
+        quoteParam.outputToken,
+        callOverrides
       );
-      const outputAmount = await bancorNetworkContract.rateByPath(
+      const outputAmount = await bancorNetworkContract.callStatic.rateByPath(
         path,
-        quoteParam.inputAmount
+        quoteParam.inputAmount,
+        callOverrides
       );
       return outputAmount;
     }
@@ -258,10 +296,11 @@ export const quoteHandler = async (
       if (allPools.length == 0) {
         return null;
       }
-      const outputAmounts = await kyber_router02.getAmountsOut(
+      const outputAmounts = await kyber_router02.callStatic.getAmountsOut(
         quoteParam.inputAmount,
         allPools,
-        [quoteParam.inputToken, quoteParam.outputToken]
+        [quoteParam.inputToken, quoteParam.outputToken],
+        callOverrides
       );
       return outputAmounts[outputAmounts.length - 1];
     }

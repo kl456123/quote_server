@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import { QuoteParam } from './types';
 import { quoteHandler } from './quoteHandler';
 import { provider } from './utils';
+import { logger } from './logging';
 
 const router = new Router();
 
@@ -29,6 +30,7 @@ router.get('/quote', async ctx => {
   const outputAmount = await quoteHandler(quoteParam, provider);
   if (!outputAmount) {
     ctx.body = `unsupported protocol: ${quoteParam.protocol}`;
+    ctx.error = 400;
     return;
   }
   ctx.body = {
@@ -36,8 +38,8 @@ router.get('/quote', async ctx => {
   };
 
   // logging
-  console.log('query: ', query);
-  console.log('outputAmount: ', outputAmount.toString());
+  logger.info('query: ', query);
+  logger.info('outputAmount: ', outputAmount.toString());
 });
 
 export { router };
