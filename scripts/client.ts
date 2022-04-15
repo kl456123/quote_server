@@ -39,9 +39,9 @@ async function testCurve() {
   const blockNumber = 14000000;
   const inputAmount = parseUnits('1000', 18).toString(); // 1000 WETH
   const protocol = 2;
-  const inputToken = tokens.WETH.address; // WETH
+  const inputToken = tokens.DAI.address; // WETH
   const outputToken = tokens.USDT.address; // USDT
-  const poolAddress = '0xd51a44d3fae010294c616388b506acda1bfaae46';
+  const poolAddress = '0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51';
   const query: QuoteParam = {
     protocol,
     inputAmount,
@@ -172,10 +172,10 @@ async function testUniswapV3() {
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-testUniswapV2();
+// testUniswapV2();
 testCurve();
-testBalancer();
-testBalancerV2();
-testKyberNetwork();
-testBancor();
-testUniswapV3();
+// testBalancer();
+// testBalancerV2();
+// testKyberNetwork();
+// testBancor();
+// testUniswapV3();

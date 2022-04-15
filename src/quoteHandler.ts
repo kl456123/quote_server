@@ -27,6 +27,7 @@ const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor];
 const iface = new ethers.utils.Interface([
   // base pool
   'function coins(uint256 arg0)view returns(address)',
+  'function underlying_coins(uint256 arg0)view returns(address)',
   // Curve
   'function get_dy_underlying(int128 i,int128 j,uint256 dx)view returns(uint256)',
   'function get_dy(int128 i,int128 j,uint256 dx)view returns(uint256)',
@@ -40,6 +41,7 @@ const iface = new ethers.utils.Interface([
 ]);
 const ifaceCoin128 = new ethers.utils.Interface([
   'function coins(int128 arg0)view returns(address)',
+  'function underlying_coins(int128 arg0)view returns(address)',
 ]);
 
 async function tryCall<Func extends (...args: any[]) => any>(
@@ -93,6 +95,43 @@ async function getCoinsList(
   return coinsAddr;
 }
 
+async function getUnderlyingCoinsList(
+  poolAddr: string,
+  provider: ethers.providers.BaseProvider
+) {
+  const coinsAddr: string[] = [];
+  const curvePool = new ethers.Contract(poolAddr, iface, provider);
+  const coinFn = curvePool.underlying_coins.bind(curvePool);
+  let i = 0;
+  let coinAddr = await tryCall(coinFn, i);
+  if (!coinAddr) {
+    // use coin128 instead
+    const curvePoolCoin128 = new ethers.Contract(
+      poolAddr,
+      ifaceCoin128,
+      provider
+    );
+    const coin128Fn = curvePoolCoin128.underlying_coins.bind(curvePoolCoin128);
+    coinAddr = await tryCall(coin128Fn, 0);
+    if (!coinAddr) {
+      logger.error(`Call to int128 underlying coins failed for ${poolAddr}`);
+    }
+    while (coinAddr) {
+      coinsAddr.push(coinAddr.toLowerCase());
+      i += 1;
+      coinAddr = await tryCall(coin128Fn, i);
+    }
+    return coinsAddr;
+  }
+
+  while (coinAddr) {
+    coinsAddr.push(coinAddr.toLowerCase());
+    i += 1;
+    coinAddr = await tryCall(coinFn, i);
+  }
+  return coinsAddr;
+}
+
 async function getBasePool(curvePool: ethers.Contract) {
   if (UNKNOWN_METAPOOLS.has(curvePool.address)) {
     return UNKNOWN_METAPOOLS.get(curvePool.address);
@@ -135,18 +174,33 @@ export const quoteHandler = async (
       const to = poolAddress;
 
       const curvePool = new ethers.Contract(to, iface, provider);
-      let coinsAddr = await getCoinsList(to, provider);
+      const [coinsAddr, basePoolAddr] = await Promise.all([
+        getCoinsList(to, provider),
+        getBasePool(curvePool),
+      ]);
       let metaCoinsNum = coinsAddr.length;
-      // check if pool is metapool, plain pool or crypto pool
-      const basePoolAddr = await getBasePool(curvePool);
+      // check if pool is metapool or not
       if (basePoolAddr) {
         // make sure this is metapool
         metaCoinsNum -= 1; // exclude lp token
         const baseCoinsAddr = await getCoinsList(basePoolAddr, provider);
-        coinsAddr = coinsAddr.slice(-1).concat(baseCoinsAddr);
+        coinsAddr.splice(coinsAddr.length - 1, 1, ...baseCoinsAddr);
       }
-      const fromTokenIdx = coinsAddr.indexOf(quoteParam.inputToken);
-      const toTokenIdx = coinsAddr.indexOf(quoteParam.outputToken);
+
+      // find index for tokens
+      let fromTokenIdx = coinsAddr.indexOf(quoteParam.inputToken);
+      let toTokenIdx = coinsAddr.indexOf(quoteParam.outputToken);
+      if (fromTokenIdx === -1 || toTokenIdx === -1) {
+        // try to find input and output tokens in underlying coins list
+        // if some token cannot be found in coins list
+        const underlyingCoinsAddr = await getUnderlyingCoinsList(to, provider);
+        if (underlyingCoinsAddr.length && fromTokenIdx === -1) {
+          fromTokenIdx = underlyingCoinsAddr.indexOf(quoteParam.inputToken);
+        }
+        if (underlyingCoinsAddr.length && toTokenIdx === -1) {
+          toTokenIdx = underlyingCoinsAddr.indexOf(quoteParam.outputToken);
+        }
+      }
       if (fromTokenIdx === -1 || toTokenIdx === -1) {
         logger.error(`cannot trade tokens in the pool: ${to}`);
         return null;
