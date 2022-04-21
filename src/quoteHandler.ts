@@ -190,10 +190,14 @@ export const quoteHandler = async (
       // find index for tokens
       let fromTokenIdx = coinsAddr.indexOf(quoteParam.inputToken);
       let toTokenIdx = coinsAddr.indexOf(quoteParam.outputToken);
+      let isLending = false;
       if (fromTokenIdx === -1 || toTokenIdx === -1) {
         // try to find input and output tokens in underlying coins list
         // if some token cannot be found in coins list
         const underlyingCoinsAddr = await getUnderlyingCoinsList(to, provider);
+        if (underlyingCoinsAddr.length > 0) {
+          isLending = true;
+        }
         if (underlyingCoinsAddr.length && fromTokenIdx === -1) {
           fromTokenIdx = underlyingCoinsAddr.indexOf(quoteParam.inputToken);
         }
@@ -207,7 +211,11 @@ export const quoteHandler = async (
       }
 
       let useUnderlying = true;
-      if (metaCoinsNum > fromTokenIdx && metaCoinsNum > toTokenIdx) {
+      if (
+        !isLending &&
+        metaCoinsNum > fromTokenIdx &&
+        metaCoinsNum > toTokenIdx
+      ) {
         useUnderlying = false;
       }
       let outputAmount = Zero;

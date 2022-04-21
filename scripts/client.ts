@@ -36,18 +36,18 @@ async function testCurve() {
     '0x80466c64868e1ab14a1ddf27a676c3fcbe638fe5', // tricrypto, [USDT/WBTC/WETH
     '0xd51a44d3fae010294c616388b506acda1bfaae46', // tricrypto2
   ];
-  const blockNumber = 14000000;
-  const inputAmount = parseUnits('1000', 18).toString(); // 1000 WETH
+  // const blockNumber = 14000000;
+  const inputAmount = parseUnits('10', 18).toString(); // 1000 WETH
   const protocol = 2;
-  const inputToken = tokens.DAI.address; // WETH
+  const inputToken = tokens.DAI.address; // DAI
   const outputToken = tokens.USDT.address; // USDT
-  const poolAddress = '0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51';
+  const poolAddress = '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF';
   const query: QuoteParam = {
     protocol,
     inputAmount,
     inputToken,
     outputToken,
-    blockNumber,
+    // blockNumber,
     poolAddress,
   };
   const res = await axios.get(url, { params: query });
