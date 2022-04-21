@@ -12,3 +12,17 @@ export const makeBigNumber = (amount: BigNumberish) => {
 
 export const formatUnits = ethers.utils.formatUnits;
 export const parseUnits = ethers.utils.parseUnits;
+
+export async function tryCall<Func extends (...args: any[]) => any>(
+  call: Func,
+  ...params: Parameters<Func>
+) {
+  let result: ReturnType<Func> | null;
+  try {
+    result = await call(...params);
+  } catch (error) {
+    error;
+    result = null;
+  }
+  return result;
+}

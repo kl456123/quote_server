@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
 import {
   UniswapV2Router02__factory,
-  BalancerSampler__factory,
-  BalancerV2Sampler__factory,
   DMMRouter02__factory,
   BancorNetwork__factory,
   QuoterV2__factory,
@@ -13,133 +11,15 @@ import {
 import { logger } from './logging';
 import {
   UNISWAPV2_ROUTER,
-  SAMPLER_ADDRESS,
-  Zero,
   KYBER_ROUTER02,
   BANCOR_ADDRESS,
   UNISWAPV3_QUOTER,
 } from './constants';
-import { UNKNOWN_METAPOOLS } from './markets/curve';
+import { quoteCurveHandler } from './markets/quote_curve_handler';
+import { quoteV2CurveHandler } from './markets/quotev2_curve_handler';
 import { QuoteParam, Protocol } from './types';
 
 const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor];
-
-const iface = new ethers.utils.Interface([
-  // base pool
-  'function coins(uint256 arg0)view returns(address)',
-  'function underlying_coins(uint256 arg0)view returns(address)',
-  // Curve
-  'function get_dy_underlying(int128 i,int128 j,uint256 dx)view returns(uint256)',
-  'function get_dy(int128 i,int128 j,uint256 dx)view returns(uint256)',
-  // CurveV2
-  'function get_dy(uint256 i,uint256 j,uint256 dx)view returns(uint256)',
-  'function get_dy_underlying(uint256 i,uint256 j,uint256 dx)view returns(uint256)',
-  // to check if metapool
-  'function base_pool()view returns(address)',
-  // to check if curvev2
-  'function gamma()view returns(uint256)',
-]);
-const ifaceCoin128 = new ethers.utils.Interface([
-  'function coins(int128 arg0)view returns(address)',
-  'function underlying_coins(int128 arg0)view returns(address)',
-]);
-
-async function tryCall<Func extends (...args: any[]) => any>(
-  call: Func,
-  ...params: Parameters<Func>
-) {
-  let result: ReturnType<Func> | null;
-  try {
-    result = await call(params);
-  } catch {
-    result = null;
-  }
-  return result;
-}
-
-async function getCoinsList(
-  poolAddr: string,
-  provider: ethers.providers.BaseProvider
-) {
-  const coinsAddr: string[] = [];
-  const curvePool = new ethers.Contract(poolAddr, iface, provider);
-  const coinFn = curvePool.coins.bind(curvePool);
-  let i = 0;
-  let coinAddr = await tryCall(coinFn, i);
-  if (!coinAddr) {
-    // use coin128 instead
-    const curvePoolCoin128 = new ethers.Contract(
-      poolAddr,
-      ifaceCoin128,
-      provider
-    );
-    const coin128Fn = curvePoolCoin128.coins.bind(curvePoolCoin128);
-    coinAddr = await tryCall(coin128Fn, 0);
-    if (!coinAddr) {
-      logger.error(`Call to int128 coins failed for ${poolAddr}`);
-    }
-    while (coinAddr) {
-      coinsAddr.push(coinAddr.toLowerCase());
-      i += 1;
-      coinAddr = await tryCall(coin128Fn, i);
-    }
-    return coinsAddr;
-  }
-
-  while (coinAddr) {
-    coinsAddr.push(coinAddr.toLowerCase());
-    i += 1;
-    coinAddr = await tryCall(coinFn, i);
-  }
-
-  return coinsAddr;
-}
-
-async function getUnderlyingCoinsList(
-  poolAddr: string,
-  provider: ethers.providers.BaseProvider
-) {
-  const coinsAddr: string[] = [];
-  const curvePool = new ethers.Contract(poolAddr, iface, provider);
-  const coinFn = curvePool.underlying_coins.bind(curvePool);
-  let i = 0;
-  let coinAddr = await tryCall(coinFn, i);
-  if (!coinAddr) {
-    // use coin128 instead
-    const curvePoolCoin128 = new ethers.Contract(
-      poolAddr,
-      ifaceCoin128,
-      provider
-    );
-    const coin128Fn = curvePoolCoin128.underlying_coins.bind(curvePoolCoin128);
-    coinAddr = await tryCall(coin128Fn, 0);
-    if (!coinAddr) {
-      logger.error(`Call to int128 underlying coins failed for ${poolAddr}`);
-    }
-    while (coinAddr) {
-      coinsAddr.push(coinAddr.toLowerCase());
-      i += 1;
-      coinAddr = await tryCall(coin128Fn, i);
-    }
-    return coinsAddr;
-  }
-
-  while (coinAddr) {
-    coinsAddr.push(coinAddr.toLowerCase());
-    i += 1;
-    coinAddr = await tryCall(coinFn, i);
-  }
-  return coinsAddr;
-}
-
-async function getBasePool(curvePool: ethers.Contract) {
-  if (UNKNOWN_METAPOOLS.has(curvePool.address)) {
-    return UNKNOWN_METAPOOLS.get(curvePool.address);
-  }
-  const fn = curvePool.base_pool.bind(curvePool);
-  const basePoolAddr = await tryCall(fn);
-  return basePoolAddr;
-}
 
 export const quoteHandler = async (
   quoteParam: QuoteParam,
@@ -171,80 +51,12 @@ export const quoteHandler = async (
     }
     case Protocol.CurveV2:
     case Protocol.Curve: {
-      const to = poolAddress;
-
-      const curvePool = new ethers.Contract(to, iface, provider);
-      const [coinsAddr, basePoolAddr] = await Promise.all([
-        getCoinsList(to, provider),
-        getBasePool(curvePool),
-      ]);
-      let metaCoinsNum = coinsAddr.length;
-      // check if pool is metapool or not
-      if (basePoolAddr) {
-        // make sure this is metapool
-        metaCoinsNum -= 1; // exclude lp token
-        const baseCoinsAddr = await getCoinsList(basePoolAddr, provider);
-        coinsAddr.splice(coinsAddr.length - 1, 1, ...baseCoinsAddr);
-      }
-
-      // find index for tokens
-      let fromTokenIdx = coinsAddr.indexOf(quoteParam.inputToken);
-      let toTokenIdx = coinsAddr.indexOf(quoteParam.outputToken);
-      let isLending = false;
-      if (fromTokenIdx === -1 || toTokenIdx === -1) {
-        // try to find input and output tokens in underlying coins list
-        // if some token cannot be found in coins list
-        const underlyingCoinsAddr = await getUnderlyingCoinsList(to, provider);
-        if (underlyingCoinsAddr.length > 0) {
-          isLending = true;
-        }
-        if (underlyingCoinsAddr.length && fromTokenIdx === -1) {
-          fromTokenIdx = underlyingCoinsAddr.indexOf(quoteParam.inputToken);
-        }
-        if (underlyingCoinsAddr.length && toTokenIdx === -1) {
-          toTokenIdx = underlyingCoinsAddr.indexOf(quoteParam.outputToken);
-        }
-      }
-      if (fromTokenIdx === -1 || toTokenIdx === -1) {
-        logger.error(`cannot trade tokens in the pool: ${to}`);
-        return null;
-      }
-
-      let useUnderlying = true;
-      if (
-        !isLending &&
-        metaCoinsNum > fromTokenIdx &&
-        metaCoinsNum > toTokenIdx
-      ) {
-        useUnderlying = false;
-      }
-      let outputAmount = Zero;
-      if (useUnderlying) {
-        try {
-          // curvev1
-          outputAmount = await curvePool.callStatic[
-            'get_dy_underlying(int128,int128,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
-        } catch {
-          // curvev2
-          outputAmount = await curvePool.callStatic[
-            'get_dy_underlying(uint256,uint256,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
-        }
-      } else {
-        try {
-          // curvev1
-          outputAmount = await curvePool.callStatic[
-            'get_dy(int128,int128,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
-        } catch {
-          // curvev2
-          outputAmount = await curvePool.callStatic[
-            'get_dy(uint256,uint256,uint256)'
-          ](fromTokenIdx, toTokenIdx, quoteParam.inputAmount, callOverrides);
-        }
-      }
-
+      // due to some metapool has no base pool api exposed,
+      // we cannot get underling coins from pool contract itself.
+      // the only way to get the addition information is to query
+      // for registry or factory
+      const outputAmount = await quoteV2CurveHandler(quoteParam, provider);
+      // const outputAmount = await quoteCurveHandler(quoteParam, provider);
       return outputAmount;
     }
     case Protocol.Balancer: {

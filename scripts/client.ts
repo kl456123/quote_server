@@ -41,7 +41,7 @@ async function testCurve() {
   const protocol = 2;
   const inputToken = tokens.DAI.address; // DAI
   const outputToken = tokens.USDT.address; // USDT
-  const poolAddress = '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF';
+  const poolAddress = '0xDB8Cc7eCeD700A4bfFdE98013760Ff31FF9408D8';
   const query: QuoteParam = {
     protocol,
     inputAmount,
@@ -172,10 +172,10 @@ async function testUniswapV3() {
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-// testUniswapV2();
+testUniswapV2();
 testCurve();
-// testBalancer();
-// testBalancerV2();
-// testKyberNetwork();
-// testBancor();
-// testUniswapV3();
+testBalancer();
+testBalancerV2();
+testKyberNetwork();
+testBancor();
+testUniswapV3();

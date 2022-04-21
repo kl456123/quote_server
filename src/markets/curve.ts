@@ -1,4 +1,5 @@
 import { tokens } from '../tokens';
+import { ethers } from 'ethers';
 
 export enum CurveFunctionSelectors {
   None = '0x00000000',
@@ -149,3 +150,24 @@ UNKNOWN_METAPOOLS.set(
   '0x87650d7bbfc3a9f10587d7778206671719d9910d',
   '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
 ); // OUSD
+
+export const iface = new ethers.utils.Interface([
+  // base pool
+  'function coins(uint256 arg0)view returns(address)',
+  'function underlying_coins(uint256 arg0)view returns(address)',
+  // Curve
+  'function get_dy_underlying(int128 i,int128 j,uint256 dx)view returns(uint256)',
+  'function get_dy(int128 i,int128 j,uint256 dx)view returns(uint256)',
+  // CurveV2
+  'function get_dy(uint256 i,uint256 j,uint256 dx)view returns(uint256)',
+  'function get_dy_underlying(uint256 i,uint256 j,uint256 dx)view returns(uint256)',
+  // to check if metapool
+  'function base_pool()view returns(address)',
+  // to check if curvev2
+  'function gamma()view returns(uint256)',
+]);
+
+export const ifaceCoin128 = new ethers.utils.Interface([
+  'function coins(int128 arg0)view returns(address)',
+  'function underlying_coins(int128 arg0)view returns(address)',
+]);
