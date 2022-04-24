@@ -116,14 +116,23 @@ export const quoteHandler = async (
         recipient: ethers.constants.AddressZero,
         toInternalBalance: false,
       };
-      const outputAmounts = await vaultContract.callStatic.queryBatchSwap(
-        kind,
-        swaps,
-        assets,
-        funds,
-        callOverrides
-      );
-      return outputAmounts[1].mul(-1);
+      let outputAmount;
+      try {
+        const outputAmounts = await vaultContract.callStatic.queryBatchSwap(
+          kind,
+          swaps,
+          assets,
+          funds,
+          callOverrides
+        );
+        outputAmount = outputAmounts[1].mul(-1);
+      } catch (error: any) {
+        logger.error(
+          `errorArgs: ${error.errorArgs}, errorName: ${error.errorName}`
+        );
+        outputAmount = ethers.constants.Zero;
+      }
+      return outputAmount;
     }
 
     case Protocol.UniswapV3: {
