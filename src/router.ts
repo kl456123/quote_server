@@ -27,6 +27,9 @@ router.get('/quote', async ctx => {
     protocol: parseInt(query.protocol as string),
     poolAddress: query.poolAddress as string,
   };
+
+  logger.info('query: ', query);
+
   try {
     const outputAmount = await quoteHandler(quoteParam, provider);
     if (!outputAmount) {
@@ -38,13 +41,13 @@ router.get('/quote', async ctx => {
       outputAmount: outputAmount.toString(),
     };
     // logging
-    logger.info('query: ', query);
     logger.info('outputAmount: ', outputAmount.toString());
   } catch (error) {
     ctx.body = {
       error: error,
     };
     ctx.error = 400;
+    logger.error(`error: ${error}`);
   }
 });
 

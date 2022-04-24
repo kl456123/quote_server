@@ -39,9 +39,11 @@ async function testCurve() {
   // const blockNumber = 14000000;
   const inputAmount = parseUnits('10', 18).toString(); // 1000 WETH
   const protocol = 2;
-  const inputToken = tokens.DAI.address; // DAI
-  const outputToken = tokens.USDT.address; // USDT
-  const poolAddress = '0xDB8Cc7eCeD700A4bfFdE98013760Ff31FF9408D8';
+  // const inputToken = tokens.DAI.address; // DAI
+  // const outputToken = tokens.USDT.address; // USDT
+  const inputToken = '0x8e595470Ed749b85C6F7669de83EAe304C2ec68F';
+  const outputToken = '0x76Eb2FE28b36B3ee97F3Adae0C69606eeDB2A37c';
+  const poolAddress = '0x2dded6da1bf5dbdf597c45fcfaa3194e53ecfeaf';
   const query: QuoteParam = {
     protocol,
     inputAmount,
@@ -83,11 +85,12 @@ async function testBalancer() {
 
 async function testBalancerV2() {
   const blockNumber = 14000000;
-  const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
+  // const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
+  const inputAmount = '1000000000000000000';
   const protocol = 5; // balancerV2
-  const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
-  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
-  const poolAddress = '0x06Df3b2bbB68adc8B0e302443692037ED9f91b42';
+  const inputToken = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'; // DAI
+  const outputToken = '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9'; // USDC
+  const poolAddress = '0x9e7fd25ad9d97f1e6716fa5bb04749a4621e892d';
   const query: QuoteParam = {
     protocol,
     inputAmount,
@@ -150,18 +153,19 @@ async function testBancor() {
 }
 
 async function testUniswapV3() {
-  const blockNumber = 14000000;
-  const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
+  // const blockNumber = 14000000;
+  // const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
+const inputAmount = "1000000000"
   const protocol = 1; // uniswapv3
-  const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
-  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
-  const poolAddress = '0x5777d92f208679DB4b9778590Fa3CAB3aC9e2168';
+  const inputToken = '0xdac17f958d2ee523a2206206994597c13d831ec7'; // DAI
+  const outputToken = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'; // USDC
+  const poolAddress = '0x9db9e0e53058c89e5b94e29621a205198648425b';
   const query: QuoteParam = {
     protocol,
     inputAmount,
     inputToken,
     outputToken,
-    blockNumber,
+    // blockNumber,
     poolAddress,
   };
   const res = await axios.get(url, { params: query });
@@ -172,10 +176,17 @@ async function testUniswapV3() {
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-testUniswapV2();
-testCurve();
-testBalancer();
-testBalancerV2();
-testKyberNetwork();
-testBancor();
-testUniswapV3();
+async function testUrl(){
+    const url = 'http://localhost:3000/quote?blockNumber=14635311&inputAmount=100000000000000000&inputToken=0x3845badade8e6dff049820680d1f14bd3903a5d0&poolAddress=0x833e4083b7ae46cea85695c4f7ed25cdad8886de&protocol=7&outputToken=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
+const res = await axios.get(url);
+logger.info(res.data);
+}
+
+// testUniswapV2();
+// testCurve();
+// testBalancer();
+// testBalancerV2();
+// testKyberNetwork();
+// testBancor();
+// testUniswapV3();
+testUrl();
