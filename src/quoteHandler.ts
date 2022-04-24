@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import {
   UniswapV2Router02__factory,
   DMMRouter02__factory,
@@ -26,8 +26,9 @@ export const quoteHandler = async (
   provider: ethers.providers.BaseProvider
 ) => {
   if (!quoteParam.poolAddress && !nopoolAddrDEX.includes(quoteParam.protocol)) {
-    logger.error(`poolAddress is not allowed for ${quoteParam.protocol}`);
-    return null;
+    const errorStr = `poolAddress is needed for ${quoteParam.protocol}`;
+    logger.error(errorStr);
+    throw new Error(errorStr);
   }
   const poolAddress = quoteParam.poolAddress as string;
   // make sure all func called at the same blocknumber
@@ -167,9 +168,6 @@ export const quoteHandler = async (
         provider
       );
       const allPools = [poolAddress];
-      if (allPools.length == 0) {
-        return null;
-      }
       const outputAmounts = await kyber_router02.callStatic.getAmountsOut(
         quoteParam.inputAmount,
         allPools,
@@ -179,7 +177,7 @@ export const quoteHandler = async (
       return outputAmounts[outputAmounts.length - 1];
     }
     default: {
-      return null;
+      throw new Error(`unsupported protocol: ${quoteParam.protocol}`);
     }
   }
 };

@@ -155,7 +155,7 @@ async function testBancor() {
 async function testUniswapV3() {
   // const blockNumber = 14000000;
   // const inputAmount = parseUnits('1000', 18).toString(); // 1000 DAI
-const inputAmount = "1000000000"
+  const inputAmount = '1000000000';
   const protocol = 1; // uniswapv3
   const inputToken = '0xdac17f958d2ee523a2206206994597c13d831ec7'; // DAI
   const outputToken = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'; // USDC
@@ -176,17 +176,10 @@ const inputAmount = "1000000000"
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-async function testUrl(){
-    const url = 'http://localhost:3000/quote?blockNumber=14635311&inputAmount=100000000000000000&inputToken=0x3845badade8e6dff049820680d1f14bd3903a5d0&poolAddress=0x833e4083b7ae46cea85695c4f7ed25cdad8886de&protocol=7&outputToken=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
-const res = await axios.get(url);
-logger.info(res.data);
-}
-
-// testUniswapV2();
-// testCurve();
-// testBalancer();
-// testBalancerV2();
-// testKyberNetwork();
-// testBancor();
-// testUniswapV3();
-testUrl();
+testUniswapV2();
+testCurve();
+testBalancer();
+testBalancerV2();
+testKyberNetwork();
+testBancor();
+testUniswapV3();
