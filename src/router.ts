@@ -27,19 +27,25 @@ router.get('/quote', async ctx => {
     protocol: parseInt(query.protocol as string),
     poolAddress: query.poolAddress as string,
   };
-  const outputAmount = await quoteHandler(quoteParam, provider);
-  if (!outputAmount) {
-    ctx.body = `unsupported protocol: ${quoteParam.protocol}`;
+  try {
+    const outputAmount = await quoteHandler(quoteParam, provider);
+    if (!outputAmount) {
+      ctx.body = `unsupported protocol: ${quoteParam.protocol}`;
+      ctx.error = 400;
+      return;
+    }
+    ctx.body = {
+      outputAmount: outputAmount.toString(),
+    };
+    // logging
+    logger.info('query: ', query);
+    logger.info('outputAmount: ', outputAmount.toString());
+  } catch (error) {
+    ctx.body = {
+      error: error,
+    };
     ctx.error = 400;
-    return;
   }
-  ctx.body = {
-    outputAmount: outputAmount.toString(),
-  };
-
-  // logging
-  logger.info('query: ', query);
-  logger.info('outputAmount: ', outputAmount.toString());
 });
 
 export { router };
