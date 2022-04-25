@@ -66,7 +66,6 @@ export async function quoteV2CurveHandler(
       (await tryCall(fn3, args[0], args[1], args[2]));
     if (!curveV2result) {
       const errorStr = `unknown poolAddress: ${poolAddress}`;
-      logger.error(errorStr);
       throw new Error(errorStr);
     }
     fromTokenIdx = curveV2result[0];

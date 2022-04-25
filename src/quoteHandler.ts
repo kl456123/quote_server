@@ -27,7 +27,6 @@ export const quoteHandler = async (
 ) => {
   if (!quoteParam.poolAddress && !nopoolAddrDEX.includes(quoteParam.protocol)) {
     const errorStr = `poolAddress is needed for ${quoteParam.protocol}`;
-    logger.error(errorStr);
     throw new Error(errorStr);
   }
   const poolAddress = quoteParam.poolAddress as string;
