@@ -85,12 +85,11 @@ async function testBalancer() {
 
 async function testBalancerV2() {
   const blockNumber = 14000000;
-  // const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
-  const inputAmount = '1000000000000000000';
+  const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
   const protocol = 5; // balancerV2
-  const inputToken = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'; // DAI
-  const outputToken = '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9'; // USDC
-  const poolAddress = '0x9e7fd25ad9d97f1e6716fa5bb04749a4621e892d';
+  const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
+  const outputToken = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+  const poolAddress = '0x06Df3b2bbB68adc8B0e302443692037ED9f91b42';
   const query: QuoteParam = {
     protocol,
     inputAmount,
