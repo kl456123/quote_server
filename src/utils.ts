@@ -4,7 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const url = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`;
+const testUrl = `http://localhost:8545`;
 export const provider = new ethers.providers.JsonRpcProvider(url);
+export const testProvider = new ethers.providers.JsonRpcProvider(testUrl);
 
 export const makeBigNumber = (amount: BigNumberish) => {
   return BigNumber.from(amount);

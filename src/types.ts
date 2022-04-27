@@ -20,6 +20,23 @@ export type QuoteParam = {
   poolAddress?: string;
 };
 
+export type SwapParam = {
+  calldata: string;
+  inputToken: string;
+  outputToken: string;
+  blockNumber?: number;
+  ethValue?: string;
+  exchangeAddress?: string;
+  tokenApproveAddress?: string;
+  walletAddress?: string;
+};
+
 export type QuoteResponse = {
   outputAmount: string;
+  error?: string;
+};
+
+export type SwapResponse = {
+  outputAmount: string;
+  error?: string;
 };

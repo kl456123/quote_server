@@ -1,7 +1,8 @@
 import Router from '@koa/router';
-import { QuoteParam } from './types';
+import { QuoteParam, SwapParam } from './types';
 import { quoteHandler } from './quoteHandler';
-import { provider } from './utils';
+import { swapHandler } from './swapHandler';
+import { provider, testProvider } from './utils';
 import { logger } from './logging';
 
 const router = new Router();
@@ -12,7 +13,33 @@ router.get('/', async ctx => {
 });
 
 router.get('/swap', async ctx => {
-  ctx;
+  const query = ctx.query;
+  const swapParam: SwapParam = {
+    calldata: query.calldata as string,
+    inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
+    outputToken: (query.outputToken as string).toLowerCase(),
+    ethValue: query.ethValue as string | undefined,
+    blockNumber: query.blockNumber
+      ? parseInt(query.blockNumber as string)
+      : undefined,
+  };
+  try {
+    const outputAmount = await swapHandler(swapParam, testProvider);
+    ctx.body = {
+      outputAmount: outputAmount.toString(),
+    };
+    ctx.status = 200;
+    // logging
+    logger.info('query: ', query);
+    logger.info('outputAmount: ', outputAmount.toString());
+  } catch (error) {
+    ctx.body = {
+      error: JSON.stringify(error),
+    };
+    ctx.status = 400;
+    logger.info('query: ', query);
+    logger.error(`error: ${error}`);
+  }
 });
 
 router.get('/quote', async ctx => {
@@ -33,6 +60,7 @@ router.get('/quote', async ctx => {
     ctx.body = {
       outputAmount: outputAmount.toString(),
     };
+    ctx.status = 200;
     // logging
     logger.info('query: ', query);
     logger.info('outputAmount: ', outputAmount.toString());
@@ -40,7 +68,7 @@ router.get('/quote', async ctx => {
     ctx.body = {
       error: error,
     };
-    ctx.error = 400;
+    ctx.status = 400;
     logger.info('query: ', query);
     logger.error(`error: ${error}`);
   }

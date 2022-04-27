@@ -5,10 +5,13 @@
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.2",
+    "hardhat": "^2.9.3",
     "koa": "^2.13.4",
     "log4js": "^6.4.4"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@typechain/ethers-v5": "^10.0.0",
     "@types/koa": "^2.13.4",
     "@types/koa__router": "^8.0.11",
@@ -25,7 +28,8 @@
     "prettier": "prettier --write \"**/*.{js,json,md,ts}\"",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore --ext .js,.ts . --fix",
     "fix": "yarn prettier && yarn lint",
-    "start": "ts-node src/app.ts",
-    "demo": "ts-node scripts/client.ts"
+    "start": "hardhat run src/app.ts",
+    "test_swap": "hardhat run scripts/swap_client.ts --network localhost",
+    "demo": "ts-node scripts/quote_client.ts"
   }
 }

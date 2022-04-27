@@ -84,7 +84,7 @@ async function testBalancer() {
 }
 
 async function testBalancerV2() {
-  const blockNumber = 14000000;
+  // const blockNumber = 14000000;
   const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
   const protocol = 5; // balancerV2
   const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
@@ -95,7 +95,7 @@ async function testBalancerV2() {
     inputAmount,
     inputToken,
     outputToken,
-    blockNumber,
+    // blockNumber,
     poolAddress,
   };
   const res = await axios.get(url, { params: query });
@@ -175,10 +175,10 @@ async function testUniswapV3() {
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-testUniswapV2();
-testCurve();
-testBalancer();
+// testUniswapV2();
+// testCurve();
+// testBalancer();
 testBalancerV2();
-testKyberNetwork();
-testBancor();
-testUniswapV3();
+// testKyberNetwork();
+// testBancor();
+// testUniswapV3();
