@@ -1,9 +1,9 @@
-import { BigNumberish } from 'ethers';
+import { BigNumberish, BigNumber } from 'ethers';
 import hre from 'hardhat';
 import { ethers } from 'ethers';
 import { IERC20__factory } from './typechain';
 import { tokens } from './tokens';
-import { BINANCE, BINANCE7, BINANCE8 } from './constants';
+import { BINANCE, BINANCE7, BINANCE8, MULTICHAIN } from './constants';
 
 // util functions
 export async function impersonateAccount(account: string) {
@@ -20,10 +20,16 @@ export async function impersonateAndTransfer(
   toAddr: string
 ) {
   const signer = await hre.ethers.getSigner(token.holder);
-  const contract = IERC20__factory.connect(token.contract, signer);
 
   await impersonateAccount(token.holder);
-  await contract.transfer(toAddr, amt);
+  if (token.contract.toLowerCase() === tokens.ETH.address.toLowerCase()) {
+    // eth
+    await signer.sendTransaction({ to: toAddr, value: BigNumber.from(amt) });
+  } else {
+    // erc20 token
+    const contract = IERC20__factory.connect(token.contract, signer);
+    await contract.transfer(toAddr, amt);
+  }
 }
 
 export const wealthyAccounts: Record<
@@ -36,7 +42,7 @@ export const wealthyAccounts: Record<
   },
   WETH: {
     contract: tokens.WETH.address,
-    holder: '0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe', // 137k weth
+    holder: MULTICHAIN, // 137k weth
   },
   DAI: {
     contract: tokens.DAI.address,
@@ -62,4 +68,10 @@ export const wealthyAccounts: Record<
     contract: tokens.YFI.address,
     holder: BINANCE,
   },
+  ETH: {
+    contract: tokens.ETH.address,
+    holder: BINANCE7,
+  },
 };
+
+export const provider = hre.ethers.provider;

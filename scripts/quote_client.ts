@@ -9,6 +9,16 @@ dotenv.config();
 
 const url = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}/quote`;
 
+async function request(query: QuoteParam) {
+  try {
+    const res = await axios.get(url, { params: query });
+    const quoteRes = res.data as QuoteResponse;
+    logger.info(quoteRes.outputAmount);
+  } catch (error: any) {
+    logger.fatal(`${error.response.data.error}`);
+  }
+}
+
 async function testUniswapV2() {
   const blockNumber = 14000000;
   const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
@@ -22,12 +32,7 @@ async function testUniswapV2() {
     outputToken,
     blockNumber,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testCurve() {
@@ -52,12 +57,7 @@ async function testCurve() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testBalancer() {
@@ -75,12 +75,7 @@ async function testBalancer() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testBalancerV2() {
@@ -98,12 +93,7 @@ async function testBalancerV2() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testKyberNetwork() {
@@ -121,12 +111,8 @@ async function testKyberNetwork() {
     blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+
+  await request(query);
 }
 
 async function testBancor() {
@@ -143,12 +129,8 @@ async function testBancor() {
     outputToken,
     blockNumber,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+
+  await request(query);
 }
 
 async function testUniswapV3() {
@@ -167,12 +149,7 @@ async function testUniswapV3() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 testUniswapV2();

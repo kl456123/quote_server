@@ -28,8 +28,8 @@
     "prettier": "prettier --write \"**/*.{js,json,md,ts}\"",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore --ext .js,.ts . --fix",
     "fix": "yarn prettier && yarn lint",
-    "start": "(nohup hardhat node &) && hardhat run src/app.ts --network localhost",
-    "test_swap": "hardhat run scripts/swap_client.ts --network localhost",
+    "start": "hardhat run src/app.ts",
+    "test_swap": "ts-node scripts/swap_client.ts",
     "demo": "ts-node scripts/quote_client.ts"
   }
 }

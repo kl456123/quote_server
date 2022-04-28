@@ -5,6 +5,11 @@ export type Token = {
 };
 
 export const tokens: Record<string, Token> = {
+  ETH: {
+    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    symbol: 'ETH',
+    decimals: 18,
+  },
   WETH: {
     address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     symbol: 'WETH',

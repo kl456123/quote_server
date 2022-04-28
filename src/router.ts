@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { QuoteParam, SwapParam } from './types';
 import { quoteHandler } from './quoteHandler';
 import { swapHandler } from './swapHandler';
-import { provider, testProvider } from './utils';
+import { provider } from './utils';
 import { logger } from './logging';
 
 const router = new Router();
@@ -25,7 +25,7 @@ router.get('/swap', async ctx => {
       : undefined,
   };
   try {
-    const outputAmount = await swapHandler(swapParam, testProvider);
+    const outputAmount = await swapHandler(swapParam);
     ctx.body = {
       outputAmount: outputAmount.toString(),
     };
@@ -35,7 +35,7 @@ router.get('/swap', async ctx => {
     logger.info('outputAmount: ', outputAmount.toString());
   } catch (error) {
     ctx.body = {
-      error: JSON.stringify(error),
+      error: `${error}`,
     };
     ctx.status = 400;
     logger.info('query: ', query);
@@ -67,7 +67,7 @@ router.get('/quote', async ctx => {
     logger.info('outputAmount: ', outputAmount.toString());
   } catch (error) {
     ctx.body = {
-      error: error,
+      error: `${error}`,
     };
     ctx.status = 400;
     logger.info('query: ', query);

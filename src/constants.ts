@@ -24,3 +24,4 @@ export const tokenApproveAddr = '0xb5eA4cD719D4C73e062D6195b17f703792543904';
 export const BINANCE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
 export const BINANCE8 = '0xf977814e90da44bfa03b6295a0616a897441acec';
 export const BINANCE7 = '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8';
+export const MULTICHAIN = '0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe';

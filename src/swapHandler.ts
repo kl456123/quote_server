@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { SwapParam } from './types';
 import { tokenApproveAddr, dexRouterAddr, BINANCE7 } from './constants';
 import { IERC20__factory } from './typechain';
@@ -7,6 +7,7 @@ import {
   impersonateAndTransfer,
   impersonateAccount,
   wealthyAccounts,
+  provider,
 } from './test_helper';
 
 function getDefaultEOA() {
@@ -16,7 +17,8 @@ function getDefaultEOA() {
 async function prepareTokens(
   walletAddress: string,
   tokenAddr: string,
-  tokenAmount: string
+  tokenAmount: string,
+  ethValue: string
 ) {
   const accounts = Object.values(wealthyAccounts).filter(
     item => item.contract.toLowerCase() === tokenAddr.toLowerCase()
@@ -24,24 +26,28 @@ async function prepareTokens(
   if (!accounts.length) {
     throw new Error(`trading from tokenAddr(${tokenAddr}) is not supported`);
   }
-  await impersonateAndTransfer(tokenAmount, accounts[0], walletAddress);
+  if (BigNumber.from(ethValue).gt(0)) {
+    await impersonateAndTransfer(ethValue, wealthyAccounts.ETH, walletAddress);
+  }
+  if (BigNumber.from(tokenAmount).gt(0)) {
+    await impersonateAndTransfer(tokenAmount, accounts[0], walletAddress);
+  }
 }
 
-export async function swapHandler(
-  swapParam: SwapParam,
-  provider: ethers.providers.JsonRpcProvider
-) {
+export async function swapHandler(swapParam: SwapParam) {
   const approveAddress = swapParam.tokenApproveAddress ?? tokenApproveAddr;
   const exchangeAddress = swapParam.exchangeAddress ?? dexRouterAddr;
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
   // get permission of a wealthy account
   const signer = await impersonateAccount(walletAddress);
+  const ethValue = swapParam.ethValue ?? '0';
 
   // prepare tokens
   await prepareTokens(
     walletAddress,
     swapParam.inputToken,
-    swapParam.inputAmount
+    swapParam.inputAmount,
+    ethValue
   );
 
   // to survery why it doesn't work here?
@@ -66,7 +72,7 @@ export async function swapHandler(
     from: walletAddress,
     to: exchangeAddress,
     data: swapParam.calldata,
-    value: swapParam.ethValue ?? 0,
+    value: BigNumber.from(ethValue),
   };
   const gasLimit = await provider.estimateGas(tx);
   const gasPrice = await provider.getGasPrice();
