@@ -3,3 +3,4 @@ src/typechain/*
 .env
 cache/*
 yarn-error.log
+nohup.out

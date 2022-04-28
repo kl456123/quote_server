@@ -40,4 +40,25 @@ export const tokens: Record<string, Token> = {
     decimals: 6,
     symbol: 'SUSD',
   },
+  UNI: {
+    address: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+    decimals: 18,
+    symbol: 'UNI',
+  },
+  MATIC: {
+    address: '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
+    decimals: 18,
+    symbol: 'MATIC',
+  },
+  AAVE: {
+    address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    decimals: 18,
+    symbol: 'AAVE',
+  },
+
+  YFI: {
+    address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
+    decimals: 18,
+    symbol: 'YFI',
+  },
 };

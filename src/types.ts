@@ -23,6 +23,7 @@ export type QuoteParam = {
 export type SwapParam = {
   calldata: string;
   inputToken: string;
+  inputAmount: string;
   outputToken: string;
   blockNumber?: number;
   ethValue?: string;

@@ -175,10 +175,10 @@ async function testUniswapV3() {
   logger.info(formatUnits(quoteRes.outputAmount, 6));
 }
 
-// testUniswapV2();
-// testCurve();
-// testBalancer();
+testUniswapV2();
+testCurve();
+testBalancer();
 testBalancerV2();
-// testKyberNetwork();
-// testBancor();
-// testUniswapV3();
+testKyberNetwork();
+testBancor();
+testUniswapV3();

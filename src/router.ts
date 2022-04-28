@@ -17,6 +17,7 @@ router.get('/swap', async ctx => {
   const swapParam: SwapParam = {
     calldata: query.calldata as string,
     inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
+    inputAmount: query.inputAmount as string,
     outputToken: (query.outputToken as string).toLowerCase(),
     ethValue: query.ethValue as string | undefined,
     blockNumber: query.blockNumber

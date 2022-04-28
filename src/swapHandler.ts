@@ -3,10 +3,28 @@ import { SwapParam } from './types';
 import { tokenApproveAddr, dexRouterAddr, BINANCE7 } from './constants';
 import { IERC20__factory } from './typechain';
 import { logger } from './logging';
-import { impersonateAndTransfer, impersonateAccount } from './test_helper';
+import {
+  impersonateAndTransfer,
+  impersonateAccount,
+  wealthyAccounts,
+} from './test_helper';
 
 function getDefaultEOA() {
   return BINANCE7;
+}
+
+async function prepareTokens(
+  walletAddress: string,
+  tokenAddr: string,
+  tokenAmount: string
+) {
+  const accounts = Object.values(wealthyAccounts).filter(
+    item => item.contract.toLowerCase() === tokenAddr.toLowerCase()
+  );
+  if (!accounts.length) {
+    throw new Error(`trading from tokenAddr(${tokenAddr}) is not supported`);
+  }
+  await impersonateAndTransfer(tokenAmount, accounts[0], walletAddress);
 }
 
 export async function swapHandler(
@@ -18,6 +36,13 @@ export async function swapHandler(
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
   // get permission of a wealthy account
   const signer = await impersonateAccount(walletAddress);
+
+  // prepare tokens
+  await prepareTokens(
+    walletAddress,
+    swapParam.inputToken,
+    swapParam.inputAmount
+  );
 
   // to survery why it doesn't work here?
   // const signer = provider.getSigner(walletAddress || 0);
