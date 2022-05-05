@@ -1,27 +1,18 @@
 import { BigNumberish, BigNumber } from 'ethers';
-import hre from 'hardhat';
 import { ethers } from 'ethers';
 import { IERC20__factory } from './typechain';
 import { tokens } from './tokens';
 import { BINANCE, BINANCE7, BINANCE8, MULTICHAIN } from './constants';
 
-// util functions
-export async function impersonateAccount(account: string) {
-  await hre.network.provider.request({
-    method: 'hardhat_impersonateAccount',
-    params: [account],
-  });
-  return hre.ethers.provider.getSigner(account);
-}
-
 export async function impersonateAndTransfer(
   amt: BigNumberish,
   token: { holder: string; contract: string },
-  toAddr: string
+  toAddr: string,
+  provider: ethers.providers.JsonRpcProvider
 ) {
-  const signer = await hre.ethers.getSigner(token.holder);
+  const signer = await provider.getSigner(token.holder);
 
-  await impersonateAccount(token.holder);
+  // await impersonateAccount(token.holder);
   if (token.contract.toLowerCase() === tokens.ETH.address.toLowerCase()) {
     // eth
     await signer.sendTransaction({ to: toAddr, value: BigNumber.from(amt) });
@@ -73,5 +64,3 @@ export const wealthyAccounts: Record<
     holder: BINANCE7,
   },
 };
-
-export const provider = hre.ethers.provider;

@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const url = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`;
-export const provider = new ethers.providers.JsonRpcProvider(url);
+export const alchemyUrl = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`;
+export const provider = new ethers.providers.JsonRpcProvider(alchemyUrl);
 
 export const makeBigNumber = (amount: BigNumberish) => {
   return BigNumber.from(amount);

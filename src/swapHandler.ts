@@ -2,12 +2,12 @@ import { ethers, BigNumber } from 'ethers';
 import { SwapParam } from './types';
 import { tokenApproveAddr, dexRouterAddr, BINANCE7 } from './constants';
 import { IERC20__factory } from './typechain';
-import { logger } from './logging';
+import ganache from 'ganache';
+import { alchemyUrl } from './utils';
 import {
   impersonateAndTransfer,
-  impersonateAccount,
+  // impersonateAccount,
   wealthyAccounts,
-  provider,
 } from './test_helper';
 
 function getDefaultEOA() {
@@ -18,7 +18,8 @@ async function prepareTokens(
   walletAddress: string,
   tokenAddr: string,
   tokenAmount: string,
-  ethValue: string
+  ethValue: string,
+  provider: ethers.providers.JsonRpcProvider
 ) {
   const accounts = Object.values(wealthyAccounts).filter(
     item => item.contract.toLowerCase() === tokenAddr.toLowerCase()
@@ -27,10 +28,20 @@ async function prepareTokens(
     throw new Error(`trading from tokenAddr(${tokenAddr}) is not supported`);
   }
   if (BigNumber.from(ethValue).gt(0)) {
-    await impersonateAndTransfer(ethValue, wealthyAccounts.ETH, walletAddress);
+    await impersonateAndTransfer(
+      ethValue,
+      wealthyAccounts.ETH,
+      walletAddress,
+      provider
+    );
   }
   if (BigNumber.from(tokenAmount).gt(0)) {
-    await impersonateAndTransfer(tokenAmount, accounts[0], walletAddress);
+    await impersonateAndTransfer(
+      tokenAmount,
+      accounts[0],
+      walletAddress,
+      provider
+    );
   }
 }
 
@@ -38,8 +49,21 @@ export async function swapHandler(swapParam: SwapParam) {
   const approveAddress = swapParam.tokenApproveAddress ?? tokenApproveAddr;
   const exchangeAddress = swapParam.exchangeAddress ?? dexRouterAddr;
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
+  const blockNumber = swapParam.blockNumber;
   // get permission of a wealthy account
-  const signer = await impersonateAccount(walletAddress);
+  // const signer = await impersonateAccount(walletAddress);
+  const unlockedAccounts = Object.values(wealthyAccounts).map(
+    item => item.holder
+  );
+  // const url = "https://eth-mainnet.alchemyapi.io/v2/mgHwlYpgAvGEiR_RCgPiTfvT-yyJ6T03";
+  const options = {
+    fork: { url: alchemyUrl, blockNumber },
+    wallet: { unlockedAccounts },
+  };
+  const provider = new ethers.providers.Web3Provider(
+    ganache.provider(options) as any
+  );
+  const signer = provider.getSigner(walletAddress);
   const ethValue = swapParam.ethValue ?? '0';
 
   // prepare tokens
@@ -47,7 +71,8 @@ export async function swapHandler(swapParam: SwapParam) {
     walletAddress,
     swapParam.inputToken,
     swapParam.inputAmount,
-    ethValue
+    ethValue,
+    provider
   );
 
   // to survery why it doesn't work here?
