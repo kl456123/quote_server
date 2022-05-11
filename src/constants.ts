@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { Protocol } from './types';
 
 export const UNISWAPV2_ROUTER = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
 export const SAMPLER_ADDRESS = '0xE9BBD6eC0c9Ca71d3DcCD1282EE9de4F811E50aF';
@@ -25,3 +26,11 @@ export const BINANCE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
 export const BINANCE8 = '0xf977814e90da44bfa03b6295a0616a897441acec';
 export const BINANCE7 = '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8';
 export const MULTICHAIN = '0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe';
+
+// okc dapp address
+export const KSWAP_ROUTER = '0xc3364A27f56b95f4bEB0742a7325D67a04D80942';
+
+export const uniswapv2LikeRouterMap = {
+  [Protocol.KSwap]: KSWAP_ROUTER,
+  [Protocol.UniswapV2]: UNISWAPV2_ROUTER,
+};

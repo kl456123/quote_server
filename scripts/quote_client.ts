@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { QuoteResponse, QuoteParam } from '../src/types';
-import { formatUnits, parseUnits } from '../src/utils';
+import { formatUnits, parseUnits, getProvider } from '../src/utils';
 import { tokens } from '../src/tokens';
 import { logger } from '../src/logging';
 
@@ -152,6 +152,25 @@ async function testUniswapV3() {
   await request(query);
 }
 
+////// for okc
+async function testKSwap() {
+  // const blockNumber = 14000000;
+  const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
+  const protocol = 8;
+  const chainId = 2;
+  const inputToken = '0x382bb369d343125bfb2117af9c149795c6c65c50';
+  const outputToken = '0xc946daf81b08146b1c7a8da2a851ddf2b3eaaf85';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    chainId,
+    // blockNumber,
+  };
+  await request(query);
+}
+
 testUniswapV2();
 testCurve();
 testBalancer();
@@ -159,3 +178,4 @@ testBalancerV2();
 testKyberNetwork();
 testBancor();
 testUniswapV3();
+testKSwap();

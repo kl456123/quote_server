@@ -1,8 +1,8 @@
 import Router from '@koa/router';
-import { QuoteParam, SwapParam } from './types';
+import { QuoteParam, SwapParam, ChainId } from './types';
 import { quoteHandler } from './quoteHandler';
 import { swapHandler } from './swapHandler';
-import { provider } from './utils';
+import { getProvider } from './utils';
 import { logger } from './logging';
 
 const router = new Router();
@@ -54,7 +54,9 @@ router.get('/quote', async ctx => {
     outputToken: (query.outputToken as string).toLowerCase(),
     protocol: parseInt(query.protocol as string),
     poolAddress: query.poolAddress as string,
+    chainId: query.chainId ? parseInt(query.chainId as string) : undefined,
   };
+  const provider = getProvider(quoteParam.chainId ?? ChainId.Ethereum);
 
   try {
     const outputAmount = await quoteHandler(quoteParam, provider);

@@ -1,10 +1,11 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import dotenv from 'dotenv';
+import { ChainId } from './types';
 
 dotenv.config();
 
 export const alchemyUrl = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`;
-export const provider = new ethers.providers.JsonRpcProvider(alchemyUrl);
+// export const provider = new ethers.providers.JsonRpcProvider(alchemyUrl);
 
 export const makeBigNumber = (amount: BigNumberish) => {
   return BigNumber.from(amount);
@@ -25,4 +26,25 @@ export async function tryCall<Func extends (...args: any[]) => any>(
     result = null;
   }
   return result;
+}
+
+export function getProvider(chainId: ChainId) {
+  let url;
+  switch (chainId) {
+    case ChainId.Ethereum: {
+      url = alchemyUrl;
+      break;
+    }
+    case ChainId.BSC: {
+      url = `https://bsc-dataseed1.defibit.io`;
+      break;
+    }
+    case ChainId.OKC: {
+      url = 'https://exchainrpc.okex.org/';
+      break;
+    }
+    default:
+      throw new Error(`unsupported chainId: ${chainId}`);
+  }
+  return new ethers.providers.JsonRpcProvider(url);
 }
