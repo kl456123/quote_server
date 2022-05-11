@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { QuoteResponse, QuoteParam } from '../src/types';
-import { formatUnits, parseUnits } from '../src/utils';
+import { formatUnits, parseUnits, getProvider } from '../src/utils';
 import { tokens } from '../src/tokens';
 import { logger } from '../src/logging';
 
@@ -8,6 +8,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const url = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}/quote`;
+
+async function request(query: QuoteParam) {
+  try {
+    const res = await axios.get(url, { params: query });
+    const quoteRes = res.data as QuoteResponse;
+    logger.info(quoteRes.outputAmount);
+  } catch (error: any) {
+    logger.fatal(`${error.response.data.error}`);
+  }
+}
 
 async function testUniswapV2() {
   const blockNumber = 14000000;
@@ -22,12 +32,7 @@ async function testUniswapV2() {
     outputToken,
     blockNumber,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testCurve() {
@@ -52,12 +57,7 @@ async function testCurve() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testBalancer() {
@@ -75,16 +75,11 @@ async function testBalancer() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testBalancerV2() {
-  const blockNumber = 14000000;
+  // const blockNumber = 14000000;
   const inputAmount = parseUnits('1000', 18).toString(); // 1 DAI
   const protocol = 5; // balancerV2
   const inputToken = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI
@@ -95,15 +90,10 @@ async function testBalancerV2() {
     inputAmount,
     inputToken,
     outputToken,
-    blockNumber,
+    // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
 }
 
 async function testKyberNetwork() {
@@ -121,12 +111,8 @@ async function testKyberNetwork() {
     blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+
+  await request(query);
 }
 
 async function testBancor() {
@@ -143,12 +129,8 @@ async function testBancor() {
     outputToken,
     blockNumber,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+
+  await request(query);
 }
 
 async function testUniswapV3() {
@@ -167,12 +149,26 @@ async function testUniswapV3() {
     // blockNumber,
     poolAddress,
   };
-  const res = await axios.get(url, { params: query });
-  if (res.status != 200) {
-    logger.fatal('get failed');
-  }
-  const quoteRes = res.data as QuoteResponse;
-  logger.info(formatUnits(quoteRes.outputAmount, 6));
+  await request(query);
+}
+
+////// for okc
+async function testKSwap() {
+  // const blockNumber = 14000000;
+  const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
+  const protocol = 8;
+  const chainId = 2;
+  const inputToken = '0x382bb369d343125bfb2117af9c149795c6c65c50';
+  const outputToken = '0xc946daf81b08146b1c7a8da2a851ddf2b3eaaf85';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    chainId,
+    // blockNumber,
+  };
+  await request(query);
 }
 
 testUniswapV2();
@@ -182,3 +178,4 @@ testBalancerV2();
 testKyberNetwork();
 testBancor();
 testUniswapV3();
+testKSwap();

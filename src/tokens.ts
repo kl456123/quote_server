@@ -5,6 +5,11 @@ export type Token = {
 };
 
 export const tokens: Record<string, Token> = {
+  ETH: {
+    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    symbol: 'ETH',
+    decimals: 18,
+  },
   WETH: {
     address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     symbol: 'WETH',
@@ -39,5 +44,26 @@ export const tokens: Record<string, Token> = {
     address: '0x57ab1ec28d129707052df4df418d58a2d46d5f51',
     decimals: 6,
     symbol: 'SUSD',
+  },
+  UNI: {
+    address: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+    decimals: 18,
+    symbol: 'UNI',
+  },
+  MATIC: {
+    address: '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
+    decimals: 18,
+    symbol: 'MATIC',
+  },
+  AAVE: {
+    address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    decimals: 18,
+    symbol: 'AAVE',
+  },
+
+  YFI: {
+    address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
+    decimals: 18,
+    symbol: 'YFI',
   },
 };

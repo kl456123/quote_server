@@ -9,6 +9,13 @@ export enum Protocol {
   BalancerV2,
   Bancor,
   Kyber,
+  KSwap,
+}
+
+export enum ChainId {
+  Ethereum,
+  BSC,
+  OKC,
 }
 
 export type QuoteParam = {
@@ -18,8 +25,27 @@ export type QuoteParam = {
   outputToken: string;
   protocol: Protocol;
   poolAddress?: string;
+  chainId?: ChainId;
+};
+
+export type SwapParam = {
+  calldata: string;
+  inputToken: string;
+  inputAmount: string;
+  outputToken: string;
+  blockNumber?: number;
+  ethValue?: string;
+  exchangeAddress?: string;
+  tokenApproveAddress?: string;
+  walletAddress?: string;
 };
 
 export type QuoteResponse = {
   outputAmount: string;
+  error?: string;
+};
+
+export type SwapResponse = {
+  outputAmount: string;
+  error?: string;
 };

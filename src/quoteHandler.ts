@@ -10,7 +10,7 @@ import {
 } from './typechain';
 import { logger } from './logging';
 import {
-  UNISWAPV2_ROUTER,
+  uniswapv2LikeRouterMap,
   KYBER_ROUTER02,
   BANCOR_ADDRESS,
   UNISWAPV3_QUOTER,
@@ -19,7 +19,7 @@ import { quoteCurveHandler } from './markets/quote_curve_handler';
 import { quoteV2CurveHandler } from './markets/quotev2_curve_handler';
 import { QuoteParam, Protocol } from './types';
 
-const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor];
+const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor, Protocol.KSwap];
 
 export const quoteHandler = async (
   quoteParam: QuoteParam,
@@ -36,9 +36,11 @@ export const quoteHandler = async (
   }
   const callOverrides = { blockTag: quoteParam.blockNumber };
   switch (quoteParam.protocol) {
+    case Protocol.KSwap:
     case Protocol.UniswapV2: {
+      const routerAddr = uniswapv2LikeRouterMap[quoteParam.protocol];
       const uniswapv2_router = UniswapV2Router02__factory.connect(
-        UNISWAPV2_ROUTER,
+        routerAddr,
         provider
       );
       const path = [quoteParam.inputToken, quoteParam.outputToken];
@@ -52,7 +54,7 @@ export const quoteHandler = async (
     case Protocol.CurveV2:
     case Protocol.Curve: {
       // due to some metapool has no base pool api exposed,
-      // we cannot get underling coins from pool contract itself.
+      // we cannot get underlying coins from pool contract itself.
       // the only way to get the addition information is to query
       // for registry or factory
       const outputAmount = await quoteV2CurveHandler(quoteParam, provider);
