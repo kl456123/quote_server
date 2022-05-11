@@ -19,7 +19,36 @@ import { quoteCurveHandler } from './markets/quote_curve_handler';
 import { quoteV2CurveHandler } from './markets/quotev2_curve_handler';
 import { QuoteParam, Protocol } from './types';
 
-const nopoolAddrDEX = [Protocol.UniswapV2, Protocol.Bancor, Protocol.KSwap];
+const nopoolAddrDEX = [
+  Protocol.UniswapV2,
+  Protocol.Bancor,
+  // all protocols of uniswap like
+  Protocol.KSwap,
+  Protocol.SushiSwap,
+  Protocol.DefiSwap,
+  Protocol.Convergence,
+  Protocol.LuaSwap,
+  Protocol.ShibaSwap,
+
+  // BSC
+  Protocol.MDEX,
+  Protocol.BiSwap,
+  Protocol.ApeSwap,
+  Protocol.BabySwap,
+  Protocol.KnightSwap,
+  Protocol.DefiBox,
+  Protocol.BakerySwap,
+  Protocol.AutoShark,
+  Protocol.BenSwap,
+  Protocol.BurgeSwap,
+  Protocol.JetSwap,
+  Protocol.PancakeSwap,
+
+  // OKC
+  Protocol.AISwap,
+  Protocol.CherrySwap,
+  Protocol.JSwap,
+];
 
 export const quoteHandler = async (
   quoteParam: QuoteParam,
@@ -37,8 +66,36 @@ export const quoteHandler = async (
   const callOverrides = { blockTag: quoteParam.blockNumber };
   switch (quoteParam.protocol) {
     case Protocol.KSwap:
+    case Protocol.SushiSwap:
+    case Protocol.DefiSwap:
+    case Protocol.Convergence:
+    case Protocol.LuaSwap:
+    case Protocol.ShibaSwap:
+    case Protocol.MDEX:
+    case Protocol.BiSwap:
+    case Protocol.ApeSwap:
+    case Protocol.BabySwap:
+    case Protocol.KnightSwap:
+    case Protocol.DefiBox:
+    case Protocol.BakerySwap:
+    case Protocol.AutoShark:
+    case Protocol.BenSwap:
+    case Protocol.BurgeSwap:
+    case Protocol.JetSwap:
+    case Protocol.PancakeSwap:
+    case Protocol.AISwap:
+    case Protocol.CherrySwap:
+    case Protocol.JSwap:
     case Protocol.UniswapV2: {
-      const routerAddr = uniswapv2LikeRouterMap[quoteParam.protocol];
+      const routesChain = uniswapv2LikeRouterMap[quoteParam.chainId!];
+      const routerAddr = routesChain
+        ? routesChain[quoteParam.protocol]
+        : undefined;
+      if (!routerAddr) {
+        throw new Error(
+          `cannot find protocol: ${quoteParam.protocol} in chain: ${quoteParam.chainId}`
+        );
+      }
       const uniswapv2_router = UniswapV2Router02__factory.connect(
         routerAddr,
         provider
