@@ -171,6 +171,26 @@ async function testKSwap() {
   await request(query);
 }
 
+////// for bsc
+async function testPancakeSwap() {
+  // const blockNumber = 14000000;
+  const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
+  const protocol = 25;
+  const chainId = 1;
+  const inputToken = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
+  const outputToken = '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    chainId,
+    // blockNumber,
+  };
+  await request(query);
+}
+
+testPancakeSwap();
 testUniswapV2();
 testCurve();
 testBalancer();
