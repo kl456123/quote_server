@@ -55,13 +55,13 @@ export async function swapHandler(swapParam: SwapParam) {
   const unlockedAccounts = Object.values(wealthyAccounts).map(
     item => item.holder
   );
-  // const url = "https://eth-mainnet.alchemyapi.io/v2/mgHwlYpgAvGEiR_RCgPiTfvT-yyJ6T03";
   const options = {
     fork: { url: alchemyUrl, blockNumber },
     wallet: { unlockedAccounts },
+    chain: {hardfork: "berlin"},
   };
   const provider = new ethers.providers.Web3Provider(
-    ganache.provider(options) as any
+    ganache.provider(options as any) as any
   );
   const signer = provider.getSigner(walletAddress);
   const ethValue = swapParam.ethValue ?? '0';
