@@ -19,7 +19,7 @@ export const cryptoPoolFactoryAddr =
   '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99';
 
 export const dexRouterAddr = '0x3b3ae790Df4F312e745D270119c6052904FB6790';
-export const tokenApproveAddr = '0xb5eA4cD719D4C73e062D6195b17f703792543904';
+export const tokenApproveAddr = '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f';
 
 // wealthy address
 export const BINANCE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
