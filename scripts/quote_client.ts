@@ -13,7 +13,7 @@ async function request(query: QuoteParam) {
   try {
     const res = await axios.get(url, { params: query });
     const quoteRes = res.data as QuoteResponse;
-    logger.info(quoteRes.outputAmount);
+    logger.info(quoteRes);
   } catch (error: any) {
     logger.fatal(`${error.response.data.error}`);
   }
