@@ -245,5 +245,12 @@ export const quoteHandler = async (
       throw new Error(`unsupported protocol: ${quoteParam.protocol}`);
     }
   }
-  return { outputAmount: outputAmount.toString() };
+  return {
+    outputAmount: outputAmount.toString(),
+    blockNumber: quoteParam.blockNumber,
+    inputAmount: quoteParam.inputAmount.toString(),
+    inputToken: quoteParam.inputToken,
+    outputToken: quoteParam.outputToken,
+    protocolName: Protocol[quoteParam.protocol],
+  };
 };
