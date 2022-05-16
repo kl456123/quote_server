@@ -64,3 +64,7 @@ export const wealthyAccounts: Record<
     holder: BINANCE7,
   },
 };
+
+export function isETH(tokenAddr: string) {
+  return tokenAddr.toLowerCase() === tokens.ETH.address.toLowerCase();
+}

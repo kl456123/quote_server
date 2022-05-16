@@ -1,11 +1,12 @@
 import { ethers, BigNumber } from 'ethers';
-import { SwapParam } from './types';
+import { SwapParam, SwapResponse } from './types';
 import { tokenApproveAddr, dexRouterAddr, BINANCE7 } from './constants';
 import { IERC20__factory } from './typechain';
 import ganache from 'ganache';
 import { alchemyUrl } from './utils';
 import {
   impersonateAndTransfer,
+  isETH,
   // impersonateAccount,
   wealthyAccounts,
 } from './test_helper';
@@ -45,7 +46,7 @@ async function prepareTokens(
   }
 }
 
-export async function swapHandler(swapParam: SwapParam) {
+export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const approveAddress = swapParam.tokenApproveAddress ?? tokenApproveAddr;
   const exchangeAddress = swapParam.exchangeAddress ?? dexRouterAddr;
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
@@ -58,7 +59,7 @@ export async function swapHandler(swapParam: SwapParam) {
   const options = {
     fork: { url: alchemyUrl, blockNumber },
     wallet: { unlockedAccounts },
-    chain: {hardfork: "berlin"},
+    chain: { hardfork: 'berlin' },
   };
   const provider = new ethers.providers.Web3Provider(
     ganache.provider(options as any) as any
@@ -74,21 +75,24 @@ export async function swapHandler(swapParam: SwapParam) {
     ethValue,
     provider
   );
+  console.log('prepareTokens done');
 
   // to survery why it doesn't work here?
   // const signer = provider.getSigner(walletAddress || 0);
   const max = ethers.constants.MaxUint256;
-  const inputTokenContract = IERC20__factory.connect(
-    swapParam.inputToken,
-    provider
-  );
   const outputTokenContract = IERC20__factory.connect(
     swapParam.outputToken,
     provider
   );
 
   // approve dexRouter for input token
-  await inputTokenContract.connect(signer).approve(approveAddress, max);
+  if (!isETH(swapParam.inputToken)) {
+    const inputTokenContract = IERC20__factory.connect(
+      swapParam.inputToken,
+      provider
+    );
+    await inputTokenContract.connect(signer).approve(approveAddress, max);
+  }
 
   // check output token balance before and after
   const before = await outputTokenContract.balanceOf(walletAddress);
@@ -101,11 +105,17 @@ export async function swapHandler(swapParam: SwapParam) {
   };
   const gasLimit = await provider.estimateGas(tx);
   const gasPrice = await provider.getGasPrice();
-  await signer.sendTransaction({ ...tx, gasLimit, gasPrice });
+  const txRes = await signer.sendTransaction({ ...tx, gasLimit, gasPrice });
+  const receipt = await txRes.wait();
+  const gasUsed = receipt.gasUsed;
 
   // check balance again
   const after = await outputTokenContract.balanceOf(walletAddress);
   const outputAmount = after.sub(before);
 
-  return outputAmount;
+  return {
+    outputAmount: outputAmount.toString(),
+    gasUsed: gasUsed.toString(),
+    gasLimit: gasLimit.toString(),
+  };
 }

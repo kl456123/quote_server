@@ -17,7 +17,7 @@ import {
 } from './constants';
 import { quoteCurveHandler } from './markets/quote_curve_handler';
 import { quoteV2CurveHandler } from './markets/quotev2_curve_handler';
-import { QuoteParam, Protocol } from './types';
+import { QuoteParam, Protocol, QuoteResponse } from './types';
 
 const nopoolAddrDEX = [
   Protocol.UniswapV2,
@@ -53,7 +53,7 @@ const nopoolAddrDEX = [
 export const quoteHandler = async (
   quoteParam: QuoteParam,
   provider: ethers.providers.BaseProvider
-) => {
+): Promise<QuoteResponse> => {
   if (!quoteParam.poolAddress && !nopoolAddrDEX.includes(quoteParam.protocol)) {
     const errorStr = `poolAddress is needed for ${quoteParam.protocol}`;
     throw new Error(errorStr);
@@ -64,6 +64,7 @@ export const quoteHandler = async (
     quoteParam.blockNumber = await provider.getBlockNumber();
   }
   const callOverrides = { blockTag: quoteParam.blockNumber };
+  let outputAmount;
   switch (quoteParam.protocol) {
     case Protocol.KSwap:
     case Protocol.SushiSwap:
@@ -106,7 +107,8 @@ export const quoteHandler = async (
         path,
         callOverrides
       );
-      return outputAmounts[outputAmounts.length - 1];
+      outputAmount = outputAmounts[outputAmounts.length - 1];
+      break;
     }
     case Protocol.CurveV2:
     case Protocol.Curve: {
@@ -114,9 +116,9 @@ export const quoteHandler = async (
       // we cannot get underlying coins from pool contract itself.
       // the only way to get the addition information is to query
       // for registry or factory
-      const outputAmount = await quoteV2CurveHandler(quoteParam, provider);
+      outputAmount = await quoteV2CurveHandler(quoteParam, provider);
       // const outputAmount = await quoteCurveHandler(quoteParam, provider);
-      return outputAmount;
+      break;
     }
     case Protocol.Balancer: {
       const bpoolContract = BPool__factory.connect(poolAddress, provider);
@@ -138,7 +140,7 @@ export const quoteHandler = async (
       const makerTokenBalance = poolState[2];
       const makerTokenWeight = poolState[3];
       const swapFee = poolState[4];
-      const outputAmount = await bpoolContract.calcOutGivenIn(
+      outputAmount = await bpoolContract.calcOutGivenIn(
         takerTokenBalance,
         takerTokenWeight,
         makerTokenBalance,
@@ -147,7 +149,7 @@ export const quoteHandler = async (
         swapFee,
         callOverrides
       );
-      return outputAmount;
+      break;
     }
 
     case Protocol.BalancerV2: {
@@ -182,7 +184,8 @@ export const quoteHandler = async (
         funds,
         callOverrides
       );
-      return outputAmounts[1].mul(-1);
+      outputAmount = outputAmounts[1].mul(-1);
+      break;
     }
 
     case Protocol.UniswapV3: {
@@ -199,9 +202,12 @@ export const quoteHandler = async (
         amountIn: quoteParam.inputAmount,
         sqrtPriceLimitX96: 0,
       };
-      const { amountOut: outputAmount } =
-        await quoterv2.callStatic.quoteExactInputSingle(params, callOverrides);
-      return outputAmount;
+      const { amountOut } = await quoterv2.callStatic.quoteExactInputSingle(
+        params,
+        callOverrides
+      );
+      outputAmount = amountOut;
+      break;
     }
     case Protocol.Bancor: {
       const bancorNetworkContract = BancorNetwork__factory.connect(
@@ -213,12 +219,12 @@ export const quoteHandler = async (
         quoteParam.outputToken,
         callOverrides
       );
-      const outputAmount = await bancorNetworkContract.callStatic.rateByPath(
+      outputAmount = await bancorNetworkContract.callStatic.rateByPath(
         path,
         quoteParam.inputAmount,
         callOverrides
       );
-      return outputAmount;
+      break;
     }
     case Protocol.Kyber: {
       const kyber_router02 = DMMRouter02__factory.connect(
@@ -232,10 +238,12 @@ export const quoteHandler = async (
         [quoteParam.inputToken, quoteParam.outputToken],
         callOverrides
       );
-      return outputAmounts[outputAmounts.length - 1];
+      outputAmount = outputAmounts[outputAmounts.length - 1];
+      break;
     }
     default: {
       throw new Error(`unsupported protocol: ${quoteParam.protocol}`);
     }
   }
+  return { outputAmount: outputAmount.toString() };
 };
