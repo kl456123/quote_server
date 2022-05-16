@@ -25,14 +25,12 @@ router.get('/swap', async ctx => {
       : undefined,
   };
   try {
-    const outputAmount = await swapHandler(swapParam);
-    ctx.body = {
-      outputAmount: outputAmount.toString(),
-    };
+    const swapResponse = await swapHandler(swapParam);
+    ctx.body = swapResponse;
     ctx.status = 200;
     // logging
     logger.info('query: ', query);
-    logger.info('outputAmount: ', outputAmount.toString());
+    logger.info('outputAmount: ', swapResponse.outputAmount.toString());
   } catch (error) {
     ctx.body = {
       error: `${error}`,
@@ -54,19 +52,19 @@ router.get('/quote', async ctx => {
     outputToken: (query.outputToken as string).toLowerCase(),
     protocol: parseInt(query.protocol as string),
     poolAddress: query.poolAddress as string,
-    chainId: query.chainId ? parseInt(query.chainId as string) : undefined,
+    chainId: query.chainId
+      ? parseInt(query.chainId as string)
+      : ChainId.Ethereum,
   };
-  const provider = getProvider(quoteParam.chainId ?? ChainId.Ethereum);
+  const provider = getProvider(quoteParam.chainId!);
 
   try {
-    const outputAmount = await quoteHandler(quoteParam, provider);
-    ctx.body = {
-      outputAmount: outputAmount.toString(),
-    };
+    const quoteResponse = await quoteHandler(quoteParam, provider);
+    ctx.body = quoteResponse;
     ctx.status = 200;
     // logging
     logger.info('query: ', query);
-    logger.info('outputAmount: ', outputAmount.toString());
+    logger.info('outputAmount: ', quoteResponse.outputAmount);
   } catch (error) {
     ctx.body = {
       error: `${error}`,

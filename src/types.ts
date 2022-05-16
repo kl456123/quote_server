@@ -66,10 +66,10 @@ export type SwapParam = {
 
 export type QuoteResponse = {
   outputAmount: string;
-  error?: string;
 };
 
 export type SwapResponse = {
   outputAmount: string;
-  error?: string;
+  gasUsed: string;
+  gasLimit: string;
 };
