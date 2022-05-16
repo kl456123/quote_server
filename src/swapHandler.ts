@@ -28,22 +28,23 @@ async function prepareTokens(
   if (!accounts.length) {
     throw new Error(`trading from tokenAddr(${tokenAddr}) is not supported`);
   }
-  if (BigNumber.from(ethValue).gt(0)) {
-    await impersonateAndTransfer(
-      ethValue,
+  const gasValue = ethers.utils.parseEther('10');
+  const totalValue = BigNumber.from(ethValue).add(gasValue);
+  const promises = [];
+  promises.push(
+    impersonateAndTransfer(
+      totalValue,
       wealthyAccounts.ETH,
       walletAddress,
       provider
-    );
-  }
+    )
+  );
   if (BigNumber.from(tokenAmount).gt(0)) {
-    await impersonateAndTransfer(
-      tokenAmount,
-      accounts[0],
-      walletAddress,
-      provider
+    promises.push(
+      impersonateAndTransfer(tokenAmount, accounts[0], walletAddress, provider)
     );
   }
+  await Promise.all(promises);
 }
 
 export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
@@ -56,6 +57,7 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const unlockedAccounts = Object.values(wealthyAccounts).map(
     item => item.holder
   );
+  unlockedAccounts.push(walletAddress);
   const options = {
     fork: { url: alchemyUrl, blockNumber },
     wallet: { unlockedAccounts },
@@ -75,7 +77,6 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     ethValue,
     provider
   );
-  console.log('prepareTokens done');
 
   // to survery why it doesn't work here?
   // const signer = provider.getSigner(walletAddress || 0);
@@ -94,8 +95,6 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     await inputTokenContract.connect(signer).approve(approveAddress, max);
   }
 
-  // check output token balance before and after
-  const before = await outputTokenContract.balanceOf(walletAddress);
   // execute swap in dexRouter
   const tx = {
     from: walletAddress,
@@ -103,8 +102,15 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     data: swapParam.calldata,
     value: BigNumber.from(ethValue),
   };
-  const gasLimit = await provider.estimateGas(tx);
-  const gasPrice = await provider.getGasPrice();
+  // check output token balance before and after
+  const promisesCalls = [];
+  promisesCalls.push(outputTokenContract.balanceOf(walletAddress));
+  promisesCalls.push(provider.estimateGas(tx));
+  promisesCalls.push(provider.getGasPrice());
+  const promisesRes = await Promise.all(promisesCalls);
+  const before = promisesRes[0];
+  const gasLimit = promisesRes[1];
+  const gasPrice = promisesRes[2];
   const txRes = await signer.sendTransaction({ ...tx, gasLimit, gasPrice });
   const receipt = await txRes.wait();
   const gasUsed = receipt.gasUsed;

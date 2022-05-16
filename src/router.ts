@@ -19,6 +19,7 @@ router.get('/swap', async ctx => {
     inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
     inputAmount: query.inputAmount as string,
     outputToken: (query.outputToken as string).toLowerCase(),
+    walletAddress: (query.walletAddress as string).toLowerCase(),
     ethValue: query.ethValue as string | undefined,
     blockNumber: query.blockNumber
       ? parseInt(query.blockNumber as string)

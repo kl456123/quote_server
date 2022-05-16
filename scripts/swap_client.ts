@@ -14,25 +14,26 @@ async function testUniswapV3(query: SwapParam) {
   try {
     const res = await axios.get(url, { params: query });
     const quoteRes = res.data as SwapResponse;
-    logger.info(formatUnits(quoteRes.outputAmount, 6));
+    logger.info(quoteRes);
   } catch (error: any) {
     logger.fatal(`${error.response.data.error}`);
   }
 }
 
 async function main() {
-  const amount = '50';
-  const ethValue = ethers.utils.parseEther(amount.toString()).toString();
+  const amount = '10';
+  // const ethValue = ethers.utils.parseEther(amount.toString()).toString();
   const inputAmount = ethers.utils.parseUnits(amount, 6).toString();
-  const inputToken = tokens.ETH.address; // WETH
-  const outputToken = tokens.USDC.address; //AAVE
+  const inputToken = tokens.USDT.address; // USDT
+  const outputToken = tokens.USDC.address; //USDC
+  const walletAddress = '0xbD11861D13caFa8Ad6e143DA7034f8A907CD47a8';
   const query = {
     amount,
-    fromCoinId: 3,
+    fromCoinId: 818,
     toCoinId: 41,
     chainId: 1,
     toTokenDecimal: 6,
-    fromTokenDecimal: 1,
+    fromTokenDecimal: 6,
     toTokenAddress: outputToken,
     fromTokenAddress: inputToken,
   };
@@ -45,12 +46,14 @@ async function main() {
   console.log(response.data.calldata);
   const calldata = response.data.calldata;
   const swapParam: SwapParam = {
+    walletAddress,
     calldata,
     inputToken,
     outputToken,
     inputAmount,
-    ethValue,
+    // ethValue,
   };
+  console.log(swapParam);
   await testUniswapV3(swapParam);
 }
 
