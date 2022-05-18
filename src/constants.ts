@@ -18,14 +18,20 @@ export const stablePoolFactoryAddr =
 export const cryptoPoolFactoryAddr =
   '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99';
 
-export const dexRouterAddr = '0x3b3ae790Df4F312e745D270119c6052904FB6790';
-export const tokenApproveAddr = '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f';
+// export const dexRouterAddr = '0x3b3ae790Df4F312e745D270119c6052904FB6790';
+// export const tokenApproveAddr = '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f';
 
 // wealthy address
+// ethereum
 export const BINANCE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
 export const BINANCE8 = '0xf977814e90da44bfa03b6295a0616a897441acec';
 export const BINANCE7 = '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8';
 export const MULTICHAIN = '0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe';
+// bsc
+export const BINANCE6BSC = '0x8894e0a0c962cb723c1976a4421c95949be2d4e3';
+
+// okc
+export const WealthyOKC = '0xeB196a61f9A1E35Bf5053b65AAA57c5541dcBa86';
 
 // okc dapp address
 export const KSWAP_ROUTER = '0xc3364A27f56b95f4bEB0742a7325D67a04D80942';
@@ -63,5 +69,34 @@ export const uniswapv2LikeRouterMap: Partial<{
     [Protocol.AISwap]: '0x9F843d9BA2A386BDA2845507450Fd47934fb3D03',
     [Protocol.CherrySwap]: '0x865bfde337C8aFBffF144Ff4C29f9404EBb22b15',
     [Protocol.SushiSwap]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+  },
+};
+
+export const dexRouterMap: {
+  [chainId in ChainId]: { [name: string]: string };
+} = {
+  [ChainId.Ethereum]: {
+    tokenApproveAddr: '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f',
+    dexRouterAddr: '0x3b3ae790Df4F312e745D270119c6052904FB6790',
+  },
+  [ChainId.BSC]: {
+    tokenApproveAddr: '0x2c34A2Fb1d0b4f55de51E1d0bDEfaDDce6b7cDD6',
+    dexRouterAddr: '0x9333C74BDd1E118634fE5664ACA7a9710b108Bab',
+  },
+  [ChainId.OKC]: {
+    tokenApproveAddr: '0x70cBb871E8f30Fc8Ce23609E9E0Ea87B6b222F58',
+    dexRouterAddr: '0xf6Aab105CB9e66e03CAD2c2F3f8558242593385c',
+  },
+  [ChainId.Polygon]: {
+    tokenApproveAddr: '0x3B86917369B83a6892f553609F3c2F439C184e31',
+    dexRouterAddr: '0xA748D6573acA135aF68F2635BE60CB80278bd855',
+  },
+  [ChainId.Avax]: {
+    tokenApproveAddr: '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f',
+    dexRouterAddr: '0x1daC23e41Fc8ce857E86fD8C1AE5b6121C67D96d',
+  },
+  [ChainId.Tron]: {
+    tokenApproveAddr: '',
+    dexRouterAddr: '',
   },
 };

@@ -19,10 +19,14 @@ router.get('/swap', async ctx => {
     inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
     inputAmount: query.inputAmount as string,
     outputToken: (query.outputToken as string).toLowerCase(),
+    walletAddress: (query.walletAddress as string).toLowerCase(),
     ethValue: query.ethValue as string | undefined,
     blockNumber: query.blockNumber
       ? parseInt(query.blockNumber as string)
       : undefined,
+    chainId: query.chainId
+      ? parseInt(query.chainId as string)
+      : ChainId.Ethereum,
   };
   try {
     const swapResponse = await swapHandler(swapParam);
@@ -56,7 +60,7 @@ router.get('/quote', async ctx => {
       ? parseInt(query.chainId as string)
       : ChainId.Ethereum,
   };
-  const provider = getProvider(quoteParam.chainId!);
+  const provider = getProvider(quoteParam.chainId);
 
   try {
     const quoteResponse = await quoteHandler(quoteParam, provider);

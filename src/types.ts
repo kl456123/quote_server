@@ -40,6 +40,9 @@ export enum ChainId {
   Ethereum,
   BSC,
   OKC,
+  Polygon,
+  Avax,
+  Tron,
 }
 
 export type QuoteParam = {
@@ -49,7 +52,7 @@ export type QuoteParam = {
   outputToken: string;
   protocol: Protocol;
   poolAddress?: string;
-  chainId?: ChainId;
+  chainId: ChainId;
 };
 
 export type SwapParam = {
@@ -62,6 +65,7 @@ export type SwapParam = {
   exchangeAddress?: string;
   tokenApproveAddress?: string;
   walletAddress?: string;
+  chainId: ChainId;
 };
 
 export type QuoteResponse = {
@@ -77,4 +81,5 @@ export type SwapResponse = {
   outputAmount: string;
   gasUsed: string;
   gasLimit: string;
+  blockNumber: number;
 };

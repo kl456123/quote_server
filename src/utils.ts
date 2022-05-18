@@ -28,7 +28,7 @@ export async function tryCall<Func extends (...args: any[]) => any>(
   return result;
 }
 
-export function getProvider(chainId: ChainId) {
+export function getUrl(chainId: ChainId) {
   let url;
   switch (chainId) {
     case ChainId.Ethereum: {
@@ -43,8 +43,21 @@ export function getProvider(chainId: ChainId) {
       url = 'https://exchainrpc.okex.org/';
       break;
     }
+    case ChainId.Polygon: {
+      url = 'https://matic-mainnet.chainstacklabs.com';
+      break;
+    }
+    case ChainId.Avax: {
+      url = 'https://avalanche.public-rpc.com';
+      break;
+    }
     default:
       throw new Error(`unsupported chainId: ${chainId}`);
   }
+  return url;
+}
+
+export function getProvider(chainId: ChainId) {
+  const url = getUrl(chainId);
   return new ethers.providers.JsonRpcProvider(url);
 }

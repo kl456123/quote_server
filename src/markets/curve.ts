@@ -1,4 +1,4 @@
-import { tokens } from '../tokens';
+import { tokensEthereum as tokens } from '../tokens';
 import { ethers } from 'ethers';
 
 export enum CurveFunctionSelectors {
