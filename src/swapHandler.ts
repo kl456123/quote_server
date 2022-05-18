@@ -1,9 +1,9 @@
 import { ethers, BigNumber } from 'ethers';
 import { SwapParam, SwapResponse } from './types';
-import { tokenApproveAddr, dexRouterAddr, BINANCE7 } from './constants';
+import { BINANCE7, dexRouterMap } from './constants';
 import { IERC20__factory } from './typechain';
 import ganache from 'ganache';
-import { alchemyUrl } from './utils';
+import { getUrl } from './utils';
 import {
   impersonateAndTransfer,
   isETH,
@@ -48,8 +48,14 @@ async function prepareTokens(
 }
 
 export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
-  const approveAddress = swapParam.tokenApproveAddress ?? tokenApproveAddr;
-  const exchangeAddress = swapParam.exchangeAddress ?? dexRouterAddr;
+  const approveAddress =
+    swapParam.tokenApproveAddress ??
+    dexRouterMap[swapParam.chainId].tokenApproveAddr;
+  const exchangeAddress =
+    swapParam.exchangeAddress ?? dexRouterMap[swapParam.chainId].dexRouterAddr;
+  if (!approveAddress.length || !exchangeAddress.length) {
+    throw new Error(`chainId: ${swapParam.chainId} is not supported`);
+  }
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
   const blockNumber = swapParam.blockNumber;
   // get permission of a wealthy account
@@ -59,9 +65,9 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   );
   unlockedAccounts.push(walletAddress);
   const options = {
-    fork: { url: alchemyUrl, blockNumber },
+    fork: { url: getUrl(swapParam.chainId), blockNumber },
     wallet: { unlockedAccounts },
-    chain: { hardfork: 'berlin' },
+    // chain: { hardfork: 'berlin' },
   };
   const provider = new ethers.providers.Web3Provider(
     ganache.provider(options as any) as any

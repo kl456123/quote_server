@@ -24,6 +24,9 @@ router.get('/swap', async ctx => {
     blockNumber: query.blockNumber
       ? parseInt(query.blockNumber as string)
       : undefined,
+    chainId: query.chainId
+      ? parseInt(query.chainId as string)
+      : ChainId.Ethereum,
   };
   try {
     const swapResponse = await swapHandler(swapParam);
@@ -57,7 +60,7 @@ router.get('/quote', async ctx => {
       ? parseInt(query.chainId as string)
       : ChainId.Ethereum,
   };
-  const provider = getProvider(quoteParam.chainId!);
+  const provider = getProvider(quoteParam.chainId);
 
   try {
     const quoteResponse = await quoteHandler(quoteParam, provider);

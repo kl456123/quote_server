@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SwapResponse, SwapParam } from '../src/types';
+import { SwapResponse, SwapParam, ChainId } from '../src/types';
 import { formatUnits, parseUnits } from '../src/utils';
 import { tokens } from '../src/tokens';
 import { logger } from '../src/logging';
@@ -24,33 +24,42 @@ async function main() {
   const amount = '10';
   // const ethValue = ethers.utils.parseEther(amount.toString()).toString();
   const inputAmount = ethers.utils.parseUnits(amount, 6).toString();
-  const inputToken = tokens.USDT.address; // USDT
-  const outputToken = tokens.USDC.address; //USDC
+  // const inputToken = tokens.USDT.address; // USDT
+  // const outputToken = tokens.USDC.address; //USDC
+  const inputToken = '';
+  const outputToken = '';
   const walletAddress = '0xbD11861D13caFa8Ad6e143DA7034f8A907CD47a8';
+  // const chainId = 43114;// Avax
+  const chainId = 137; // Polygon
+  // const chainId = 56;// BSC
+  // const chainId = 66;// OKC
   const query = {
     amount,
     fromCoinId: 818,
     toCoinId: 41,
-    chainId: 1,
+    chainId,
     toTokenDecimal: 6,
     fromTokenDecimal: 6,
     toTokenAddress: outputToken,
     fromTokenAddress: inputToken,
   };
-  const result = await axios.get(
-    'https://beta.okex.org/priapi/v1/dx/trade/multi/v2/quoteAndCalldata',
-    { params: query }
-  );
-  const response = result.data as { data: { calldata: string } };
+  // const result = await axios.get(
+  // 'https://beta.okex.org/priapi/v1/dx/trade/multi/v2/quoteAndCalldata',
+  // { params: query }
+  // );
+  // const response = result.data as { data: { calldata: string } };
 
-  console.log(response.data.calldata);
-  const calldata = response.data.calldata;
+  // console.log(response.data);
+  // const calldata = response.data.calldata;
+  const calldata =
+    '0xa6497e5c0000000000000000000000002791bca1f2de4661ed88a30c99a7a9449aa84174000000000000000000000000000000000000000000000000000000000098968000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000180000000000000003b6d03406e7a5FAFcec6BB1e78bAE2A1F0B612012BF14827';
   const swapParam: SwapParam = {
     walletAddress,
     calldata,
     inputToken,
     outputToken,
     inputAmount,
+    chainId: ChainId.Polygon,
     // ethValue,
   };
   console.log(swapParam);
