@@ -44,7 +44,7 @@ export function getUrl(chainId: ChainId) {
       break;
     }
     case ChainId.Polygon: {
-      url = 'https://polygon-rpc.com';
+      url = 'https://matic-mainnet.chainstacklabs.com';
       break;
     }
     case ChainId.Avax: {

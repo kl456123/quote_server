@@ -6,9 +6,10 @@ import ganache from 'ganache';
 import { getUrl } from './utils';
 import {
   impersonateAndTransfer,
-  isETH,
+  isNativeToken,
+  AccountsRecord,
   // impersonateAccount,
-  wealthyAccounts,
+  wealthyAccountsByChains,
 } from './test_helper';
 
 function getDefaultEOA() {
@@ -20,6 +21,7 @@ async function prepareTokens(
   tokenAddr: string,
   tokenAmount: string,
   ethValue: string,
+  wealthyAccounts: AccountsRecord,
   provider: ethers.providers.JsonRpcProvider
 ) {
   const accounts = Object.values(wealthyAccounts).filter(
@@ -34,7 +36,7 @@ async function prepareTokens(
   promises.push(
     impersonateAndTransfer(
       totalValue,
-      wealthyAccounts.ETH,
+      wealthyAccounts.NativeToken,
       walletAddress,
       provider
     )
@@ -53,11 +55,11 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     dexRouterMap[swapParam.chainId].tokenApproveAddr;
   const exchangeAddress =
     swapParam.exchangeAddress ?? dexRouterMap[swapParam.chainId].dexRouterAddr;
-  if (!approveAddress.length || !exchangeAddress.length) {
+  const wealthyAccounts = wealthyAccountsByChains[swapParam.chainId];
+  if (!approveAddress.length || !exchangeAddress.length || !wealthyAccounts) {
     throw new Error(`chainId: ${swapParam.chainId} is not supported`);
   }
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
-  const blockNumber = swapParam.blockNumber;
   // get permission of a wealthy account
   // const signer = await impersonateAccount(walletAddress);
   const unlockedAccounts = Object.values(wealthyAccounts).map(
@@ -65,7 +67,10 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   );
   unlockedAccounts.push(walletAddress);
   const options = {
-    fork: { url: getUrl(swapParam.chainId), blockNumber },
+    fork: {
+      url: getUrl(swapParam.chainId),
+      blockNumber: swapParam.blockNumber,
+    },
     wallet: { unlockedAccounts },
     // chain: { hardfork: 'berlin' },
   };
@@ -81,6 +86,7 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     swapParam.inputToken,
     swapParam.inputAmount,
     ethValue,
+    wealthyAccounts,
     provider
   );
 
@@ -93,7 +99,7 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   );
 
   // approve dexRouter for input token
-  if (!isETH(swapParam.inputToken)) {
+  if (!isNativeToken(swapParam.inputToken)) {
     const inputTokenContract = IERC20__factory.connect(
       swapParam.inputToken,
       provider
@@ -112,12 +118,14 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const promisesCalls = [];
   promisesCalls.push(outputTokenContract.balanceOf(walletAddress));
   promisesCalls.push(provider.estimateGas(tx));
-  promisesCalls.push(provider.getGasPrice());
+  promisesCalls.push(provider.getBlockNumber());
+  // promisesCalls.push(provider.getGasPrice());
   const promisesRes = await Promise.all(promisesCalls);
   const before = promisesRes[0];
   const gasLimit = promisesRes[1];
-  const gasPrice = promisesRes[2];
-  const txRes = await signer.sendTransaction({ ...tx, gasLimit, gasPrice });
+  // const gasPrice = promisesRes[2];
+  const blockNumber = promisesRes[2] as number;
+  const txRes = await signer.sendTransaction({ ...tx, gasLimit });
   const receipt = await txRes.wait();
   const gasUsed = receipt.gasUsed;
 
@@ -129,5 +137,6 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     outputAmount: outputAmount.toString(),
     gasUsed: gasUsed.toString(),
     gasLimit: gasLimit.toString(),
+    blockNumber,
   };
 }

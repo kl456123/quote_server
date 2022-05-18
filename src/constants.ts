@@ -22,10 +22,16 @@ export const cryptoPoolFactoryAddr =
 // export const tokenApproveAddr = '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f';
 
 // wealthy address
+// ethereum
 export const BINANCE = '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503';
 export const BINANCE8 = '0xf977814e90da44bfa03b6295a0616a897441acec';
 export const BINANCE7 = '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8';
 export const MULTICHAIN = '0xc564ee9f21ed8a2d8e7e76c085740d5e4c5fafbe';
+// bsc
+export const BINANCE6BSC = '0x8894e0a0c962cb723c1976a4421c95949be2d4e3';
+
+// okc
+export const WealthyOKC = '0xeB196a61f9A1E35Bf5053b65AAA57c5541dcBa86';
 
 // okc dapp address
 export const KSWAP_ROUTER = '0xc3364A27f56b95f4bEB0742a7325D67a04D80942';
