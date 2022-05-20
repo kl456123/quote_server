@@ -1,4 +1,4 @@
-import { BigNumberish } from 'ethers';
+import { BigNumberish } from 'ethers';1
 
 export enum Protocol {
   UniswapV2,
@@ -34,6 +34,12 @@ export enum Protocol {
   AISwap,
   CherrySwap,
   JSwap,
+
+
+  // Ploygon
+  QuickSwap,
+  Dfyn
+  // ApeSwap
 }
 
 export enum ChainId {

@@ -15,7 +15,6 @@ import {
   BANCOR_ADDRESS,
   UNISWAPV3_QUOTER,
 } from './constants';
-import { quoteCurveHandler } from './markets/quote_curve_handler';
 import { quoteV2CurveHandler } from './markets/quotev2_curve_handler';
 import { QuoteParam, Protocol, QuoteResponse } from './types';
 
@@ -48,6 +47,10 @@ const nopoolAddrDEX = [
   Protocol.AISwap,
   Protocol.CherrySwap,
   Protocol.JSwap,
+
+  // Polygon
+  Protocol.QuickSwap,
+  Protocol.Dfyn
 ];
 
 export const quoteHandler = async (
@@ -87,6 +90,8 @@ export const quoteHandler = async (
     case Protocol.AISwap:
     case Protocol.CherrySwap:
     case Protocol.JSwap:
+    case Protocol.QuickSwap:
+    case Protocol.Dfyn:
     case Protocol.UniswapV2: {
       const routesChain = uniswapv2LikeRouterMap[quoteParam.chainId!];
       const routerAddr = routesChain
