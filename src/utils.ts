@@ -48,7 +48,7 @@ export function getUrl(chainId: ChainId) {
       break;
     }
     case ChainId.Avax: {
-      url = 'https://avalanche.public-rpc.com';
+      url = 'https://api.avax.network/ext/bc/C/rpc';
       break;
     }
     default:
