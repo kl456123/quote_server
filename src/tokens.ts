@@ -189,6 +189,29 @@ export const tokensOKC: Record<string, Token> = {
   },
 };
 
+export const tokensAvax: Record<string, Token> = {
+  NativeToken: {
+    address: '0x0000000000000000000000000000000000000000',
+    decimals: 18,
+    symbol: 'AVAX',
+  },
+  WAVAX: {
+    address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+    decimals: 18,
+    symbol: 'WAVAX',
+  },
+  USDC: {
+    address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    decimals: 6,
+    symbol: 'USDC',
+  },
+  DAI: {
+    address: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',
+    decimals: 18,
+    symbol: 'DAI',
+  },
+};
+
 export const tokensByChain: Partial<{
   [chainId in ChainId]: Record<string, Token>;
 }> = {
@@ -196,4 +219,5 @@ export const tokensByChain: Partial<{
   [ChainId.Polygon]: tokensPolygon,
   [ChainId.BSC]: tokensBSC,
   [ChainId.OKC]: tokensOKC,
+  [ChainId.Avax]: tokensAvax,
 };

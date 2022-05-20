@@ -1,7 +1,13 @@
 import { BigNumberish, BigNumber } from 'ethers';
 import { ethers } from 'ethers';
 import { IERC20__factory } from './typechain';
-import { tokensEthereum, tokensPolygon, tokensBSC, tokensOKC } from './tokens';
+import {
+  tokensEthereum,
+  tokensPolygon,
+  tokensBSC,
+  tokensOKC,
+  tokensAvax,
+} from './tokens';
 import {
   BINANCE,
   BINANCE7,
@@ -167,6 +173,24 @@ export const wealthyAccountsOKC: AccountsRecord = {
     holder: WealthyOKC,
   },
 };
+export const wealthyAccountsAVAX: AccountsRecord = {
+  NativeToken: {
+    contract: tokensAvax.NativeToken.address,
+    holder: '0x4aeFa39caEAdD662aE31ab0CE7c8C2c9c0a013E8',
+  },
+  WAVAX: {
+    contract: tokensAvax.WAVAX.address,
+    holder: '0xBBff2A8ec8D702E61faAcCF7cf705968BB6a5baB',
+  },
+  DAI: {
+    contract: tokensAvax.DAI.address,
+    holder: '0x4188663a85C92EEa35b5AD3AA5cA7CeB237C6fe9',
+  },
+  USDC: {
+    contract: tokensAvax.USDC.address,
+    holder: '0x4aeFa39caEAdD662aE31ab0CE7c8C2c9c0a013E8',
+  },
+};
 
 export function isNativeToken(tokenAddr: string) {
   // no matter with any chain id
@@ -182,4 +206,5 @@ export const wealthyAccountsByChains: Partial<{
   [ChainId.Polygon]: wealthyAccountsPolygon,
   [ChainId.BSC]: wealthyAccountsBSC,
   [ChainId.OKC]: wealthyAccountsOKC,
+  [ChainId.Avax]: wealthyAccountsAVAX,
 };
