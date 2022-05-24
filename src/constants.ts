@@ -45,6 +45,7 @@ export const uniswapv2LikeRouterMap: Partial<{
     [Protocol.Convergence]: '0x8Cda39226daf33ae1Aba0C92C34d1a1982Cf0210',
     [Protocol.ShibaSwap]: '0x03f7724180AA6b939894B5Ca4314783B0b36b329',
     [Protocol.LuaSwap]: '0x1d5C6F1607A171Ad52EFB270121331b3039dD83e',
+    [Protocol.DefiSwap]: '0xCeB90E4C17d626BE0fACd78b79c9c87d7ca181b3',
   },
 
   [ChainId.BSC]: {

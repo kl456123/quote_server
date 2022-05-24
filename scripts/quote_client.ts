@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { QuoteResponse, QuoteParam, ChainId, Protocol } from '../src/types';
 import { formatUnits, parseUnits, getProvider } from '../src/utils';
-import { tokens } from '../src/tokens';
+// import { tokens } from '../src/tokens';
 import { logger } from '../src/logging';
 
 import dotenv from 'dotenv';
@@ -264,15 +264,32 @@ async function testApeSwap() {
   await request(query);
 }
 
-// testPancakeSwap();
-// testUniswapV2();
-// testCurve();
-// testBalancer();
-// testBalancerV2();
-// testKyberNetwork();
-// testBancor();
-// testUniswapV3();
-// testKSwap();
+async function testDefiSwap(){
+  const inputAmount = parseUnits('50', 18).toString(); // 1 ETH
+  const protocol = Protocol.DefiSwap;
+  const chainId = ChainId.Ethereum;
+  const inputToken = '0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b';
+  const outputToken = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599';
+  const query: QuoteParam = {
+    protocol,
+    inputAmount,
+    inputToken,
+    outputToken,
+    chainId
+  };
+  await request(query);
+}
+
+testPancakeSwap();
+testUniswapV2();
+testCurve();
+testBalancer();
+testBalancerV2();
+testKyberNetwork();
+testBancor();
+testUniswapV3();
+testKSwap();
 testQuickSwap();
 testDfyn();
 testApeSwap();
+testDefiSwap();
