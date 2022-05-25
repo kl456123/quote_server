@@ -74,35 +74,65 @@ export const uniswapv2LikeRouterMap: Partial<{
   [ChainId.Polygon]: {
     [Protocol.QuickSwap]: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
     [Protocol.Dfyn]: '0xA102072A4C07F06EC3B4900FDC4C7B80b6c57429',
-    [Protocol.ApeSwap]: '0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607'
-  }
+    [Protocol.ApeSwap]: '0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607',
+  },
 };
 
+export type DexRouterAddrType =
+  | 'balancerAdapterAddr'
+  | 'uniswapV2AdapterAddr'
+  | 'uniswapV3AdapterAddr'
+  | 'balancerV2AdapterAddr'
+  | 'curveAdapterAddr'
+  | 'curveV2AdapterAddr'
+  | 'kyberAdapterAddr'
+  | 'bancorAdapterAddr'
+  | 'pancakeAdapterAddr'
+  | 'bakeryAdapterAddr';
+
 export const dexRouterMap: {
-  [chainId in ChainId]: { [name: string]: string };
+  [chainId in ChainId]: Partial<{ [name in DexRouterAddrType]: string }> & {
+    [name in 'tokenApproveAddr' | 'dexRouterAddr']: string;
+  };
 } = {
   [ChainId.Ethereum]: {
     tokenApproveAddr: '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f',
     dexRouterAddr: '0x3b3ae790Df4F312e745D270119c6052904FB6790',
+    uniswapV2AdapterAddr: '0xc837BbEa8C7b0caC0e8928f797ceB04A34c9c06e',
+    uniswapV3AdapterAddr: '0x03F911AeDc25c770e701B8F563E8102CfACd62c0',
+    balancerAdapterAddr: '0x2fa31d2ac017869998F9574bAC76094a8110cf7C',
+    balancerV2AdapterAddr: '0x43c9361709bE9cE6B1E33ac31426b08dbC09e58a',
+    kyberAdapterAddr: '0x1c8875B6A9Df43256b244a7Ba4790F6A7185d8c9',
+    bancorAdapterAddr: '0xbF1840d0dB54357287Cf0736A1426Ea93321B0F7',
+    curveAdapterAddr: '0x47B5BC2C49aD25dFa6d7363c5e9B28eF804e1185',
+    curveV2AdapterAddr: '0xB2DC2da9684DfEF77CFa5c6bb07e733023715292',
   },
   [ChainId.BSC]: {
     tokenApproveAddr: '0x2c34A2Fb1d0b4f55de51E1d0bDEfaDDce6b7cDD6',
     dexRouterAddr: '0x9333C74BDd1E118634fE5664ACA7a9710b108Bab',
+    uniswapV2AdapterAddr: '0x363FB85314c5d7BAF27e9e5AC3b6E8bDa9ae9b85',
+    kyberAdapterAddr: '0x595Da5C1b445493f5C5dB7fb8813de594c760bee',
+    pancakeAdapterAddr: '0x1cB017EC34cCD9B808e4F125163807885AB70338',
+    bakeryAdapterAddr: '0xeB1426f967D9642317148b401EbB6a687E1a174a',
   },
   [ChainId.OKC]: {
     tokenApproveAddr: '0x70cBb871E8f30Fc8Ce23609E9E0Ea87B6b222F58',
     dexRouterAddr: '0xf6Aab105CB9e66e03CAD2c2F3f8558242593385c',
+    uniswapV2AdapterAddr: '0x5eAe840294c757e6fffE462e9C989944386613d4',
   },
   [ChainId.Polygon]: {
     tokenApproveAddr: '0x3B86917369B83a6892f553609F3c2F439C184e31',
     dexRouterAddr: '0xA748D6573acA135aF68F2635BE60CB80278bd855',
+    uniswapV2AdapterAddr: '0x0112bc6fDB78345e612B862a6B388FfeB00E2320',
   },
   [ChainId.Avax]: {
     tokenApproveAddr: '0x40aA958dd87FC8305b97f2BA922CDdCa374bcD7f',
     dexRouterAddr: '0x1daC23e41Fc8ce857E86fD8C1AE5b6121C67D96d',
+    uniswapV2AdapterAddr: '0x078b9259b4dc543eCa8F85A70d4635F403238D21',
   },
   [ChainId.Tron]: {
     tokenApproveAddr: '',
     dexRouterAddr: '',
+    balancerAdapterAddr: '',
   },
 };

@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { SwapResponse, SwapParam, ChainId } from '../src/types';
+import { SwapResponse, SwapParam, ChainId, Protocol } from '../src/types';
 import { formatUnits, parseUnits } from '../src/utils';
 import { tokensByChain } from '../src/tokens';
 import { logger } from '../src/logging';
+import { encodeSmartSwap, encodeUnxswap } from '../src/encoder';
 import { ethers } from 'ethers';
 
 import dotenv from 'dotenv';
@@ -104,10 +105,72 @@ async function testEthereum() {
   await request(swapParam);
 }
 
+async function testSmartSwap() {
+  const chainId = ChainId.Ethereum;
+  const tokens = tokensByChain[ChainId.Ethereum]!;
+  const fromTokenAmount = ethers.utils.parseUnits('10', 18).toString();
+  const fromToken = tokens.WETH.address; // USDC
+  const toToken = tokens.USDC.address; //WETH
+  const protocol = Protocol.UniswapV2;
+  const walletAddress = '0xbD11861D13caFa8Ad6e143DA7034f8A907CD47a8';
+  const poolAddress = '0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc'; // WETH/USDC uniswapv2
+
+  const calldata = encodeSmartSwap({
+    fromTokenAmount,
+    fromToken,
+    toToken,
+    chainId,
+    protocol,
+    poolAddress,
+  });
+  const swapParam: SwapParam = {
+    walletAddress,
+    calldata,
+    inputToken: fromToken,
+    outputToken: toToken,
+    inputAmount: fromTokenAmount,
+    chainId: ChainId.Ethereum,
+  };
+  console.log(swapParam);
+  await request(swapParam);
+}
+
+async function testUnxswap() {
+  const chainId = ChainId.Ethereum;
+  const tokens = tokensByChain[ChainId.Ethereum]!;
+  const walletAddress = '0xbD11861D13caFa8Ad6e143DA7034f8A907CD47a8';
+  const poolAddress = '0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc';
+  const fromToken = tokens.WETH.address; // USDC
+  const toToken = tokens.USDC.address;
+  const minReturn = 0;
+  const fromTokenAmount = ethers.utils.parseUnits('10', 18).toString();
+  const reversed = true;
+  const calldata = encodeUnxswap({
+    fromToken,
+    minReturn,
+    fromTokenAmount,
+    poolAddress,
+    reversed,
+  });
+
+  const swapParam: SwapParam = {
+    walletAddress,
+    calldata,
+    inputToken: fromToken,
+    outputToken: toToken,
+    inputAmount: fromTokenAmount,
+    chainId: ChainId.Ethereum,
+  };
+  console.log(swapParam);
+  await request(swapParam);
+}
+
 async function main() {
   // testEthereum();
   // testPolygon();
-  testAvax();
+  // testAvax();
+  // testSmartSwap();
+  testUnxswap();
 }
 
 main().catch(console.error);

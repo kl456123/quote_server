@@ -1,4 +1,5 @@
-import { BigNumberish } from 'ethers';1
+import { BigNumberish } from 'ethers';
+1;
 
 export enum Protocol {
   UniswapV2,
@@ -35,10 +36,9 @@ export enum Protocol {
   CherrySwap,
   JSwap,
 
-
   // Ploygon
   QuickSwap,
-  Dfyn
+  Dfyn,
   // ApeSwap
 }
 
@@ -64,7 +64,7 @@ export type QuoteParam = {
 export type SwapParam = {
   calldata: string;
   inputToken: string;
-  inputAmount: string;
+  inputAmount: BigNumberish;
   outputToken: string;
   blockNumber?: number;
   ethValue?: string;

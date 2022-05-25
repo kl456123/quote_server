@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { SwapParam, SwapResponse } from './types';
 import { BINANCE7, dexRouterMap } from './constants';
 import { IERC20__factory } from './typechain';
@@ -19,8 +19,8 @@ function getDefaultEOA() {
 async function prepareTokens(
   walletAddress: string,
   tokenAddr: string,
-  tokenAmount: string,
-  ethValue: string,
+  tokenAmount: BigNumberish,
+  ethValue: BigNumberish,
   wealthyAccounts: AccountsRecord,
   provider: ethers.providers.JsonRpcProvider
 ) {
