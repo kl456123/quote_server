@@ -7,6 +7,7 @@ import {
   tokensBSC,
   tokensOKC,
   tokensAvax,
+  tokensOptimism,
 } from './tokens';
 import {
   BINANCE,
@@ -189,6 +190,29 @@ export const wealthyAccountsAVAX: AccountsRecord = {
   USDC: {
     contract: tokensAvax.USDC.address,
     holder: '0x4aeFa39caEAdD662aE31ab0CE7c8C2c9c0a013E8',
+  },
+};
+
+export const wealthyAccountsOptimism: AccountsRecord = {
+  USDT: {
+    contract: tokensOptimism.USDT.address,
+    holder: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  },
+  USDC: {
+    contract: tokensOptimism.USDC.address,
+    holder: '0x451960F4e34aE4FB263cD46b1E866560f1332dc2',
+  },
+  DAI: {
+    contract: tokensOptimism.DAI.address,
+    holder: '0x127E0464b6eCA624f09b9292c4f33E4a829Ea5d9',
+  },
+  WETH: {
+    contract: tokensOptimism.WETH.address,
+    holder: '0x922073B39f375D85817253ac194D03d990A8b493',
+  },
+  ETH: {
+    contract: tokensOptimism.ETH.address,
+    holder: '0x127E0464b6eCA624f09b9292c4f33E4a829Ea5d9',
   },
 };
 

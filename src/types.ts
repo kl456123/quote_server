@@ -1,4 +1,5 @@
-import { BigNumberish } from 'ethers';1
+import { BigNumberish } from 'ethers';
+1;
 
 export enum Protocol {
   UniswapV2,
@@ -35,10 +36,9 @@ export enum Protocol {
   CherrySwap,
   JSwap,
 
-
   // Ploygon
   QuickSwap,
-  Dfyn
+  Dfyn,
   // ApeSwap
 }
 
@@ -49,6 +49,10 @@ export enum ChainId {
   Polygon,
   Avax,
   Tron,
+  Fantom,
+  Arbitrum,
+  Optimism,
+  Cronos,
 }
 
 export type QuoteParam = {

@@ -51,6 +51,22 @@ export function getUrl(chainId: ChainId) {
       url = 'https://api.avax.network/ext/bc/C/rpc';
       break;
     }
+    case ChainId.Arbitrum: {
+      url = 'https://arb1.arbitrum.io/rpc';
+      break;
+    }
+    case ChainId.Fantom: {
+      url = 'https://rpc.fantom.network';
+      break;
+    }
+    case ChainId.Cronos: {
+      url = 'https://evm.cronos.org';
+      break;
+    }
+    case ChainId.Optimism: {
+      url = 'https://mainnet.optimism.io';
+      break;
+    }
     default:
       throw new Error(`unsupported chainId: ${chainId}`);
   }
