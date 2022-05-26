@@ -74,8 +74,8 @@ export const uniswapv2LikeRouterMap: Partial<{
   [ChainId.Polygon]: {
     [Protocol.QuickSwap]: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
     [Protocol.Dfyn]: '0xA102072A4C07F06EC3B4900FDC4C7B80b6c57429',
-    [Protocol.ApeSwap]: '0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607'
-  }
+    [Protocol.ApeSwap]: '0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607',
+  },
 };
 
 export const dexRouterMap: {
@@ -106,3 +106,25 @@ export const dexRouterMap: {
     dexRouterAddr: '',
   },
 };
+
+export const xbridgeMap: { [chainId in ChainId]: { [name: string]: string } } =
+  {
+    [ChainId.Ethereum]: {
+      xbridgeAddr: '0xFc99f58A8974A4bc36e60E2d490Bb8D72899ee9f',
+    },
+    [ChainId.OKC]: {
+      xbridgeAddr: '0xf956D9FA19656D8e5219fd6fa8bA6cb198094138',
+    },
+    [ChainId.Polygon]: {
+      xbridgeAddr: '0x89f423567c2648BB828c3997f60c47b54f57Fa6e',
+    },
+    [ChainId.BSC]: {
+      xbridgeAddr: '0xFc99f58A8974A4bc36e60E2d490Bb8D72899ee9f',
+    },
+    [ChainId.Avax]: {
+      xbridgeAddr: '',
+    },
+    [ChainId.Tron]: {
+      xbridgeAddr: '',
+    },
+  };

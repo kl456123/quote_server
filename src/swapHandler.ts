@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import { SwapParam, SwapResponse } from './types';
-import { BINANCE7, dexRouterMap } from './constants';
+import { BINANCE7, dexRouterMap, xbridgeMap } from './constants';
 import { IERC20__factory } from './typechain';
 import ganache from 'ganache';
 import { getUrl } from './utils';
@@ -20,7 +20,6 @@ async function prepareTokens(
   walletAddress: string,
   tokenAddr: string,
   tokenAmount: string,
-  ethValue: string,
   wealthyAccounts: AccountsRecord,
   provider: ethers.providers.JsonRpcProvider
 ) {
@@ -31,11 +30,10 @@ async function prepareTokens(
     throw new Error(`trading from tokenAddr(${tokenAddr}) is not supported`);
   }
   const gasValue = ethers.utils.parseEther('10');
-  const totalValue = BigNumber.from(ethValue).add(gasValue);
   const promises = [];
   promises.push(
     impersonateAndTransfer(
-      totalValue,
+      gasValue,
       wealthyAccounts.NativeToken,
       walletAddress,
       provider
@@ -53,15 +51,21 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const approveAddress =
     swapParam.tokenApproveAddress ??
     dexRouterMap[swapParam.chainId].tokenApproveAddr;
-  const exchangeAddress =
-    swapParam.exchangeAddress ?? dexRouterMap[swapParam.chainId].dexRouterAddr;
+  let exchangeAddress: string;
+  if (swapParam.bridge) {
+    exchangeAddress =
+      swapParam.exchangeAddress ?? xbridgeMap[swapParam.chainId].xbridgeAddr;
+  } else {
+    exchangeAddress =
+      swapParam.exchangeAddress ??
+      dexRouterMap[swapParam.chainId].dexRouterAddr;
+  }
   const wealthyAccounts = wealthyAccountsByChains[swapParam.chainId];
   if (!approveAddress.length || !exchangeAddress.length || !wealthyAccounts) {
     throw new Error(`chainId: ${swapParam.chainId} is not supported`);
   }
   const walletAddress = swapParam.walletAddress ?? getDefaultEOA();
   // get permission of a wealthy account
-  // const signer = await impersonateAccount(walletAddress);
   const unlockedAccounts = Object.values(wealthyAccounts).map(
     item => item.holder
   );
@@ -70,9 +74,9 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     fork: {
       url: getUrl(swapParam.chainId),
       blockNumber: swapParam.blockNumber,
+      disableCache: true,
     },
     wallet: { unlockedAccounts },
-    // chain: { hardfork: 'berlin' },
   };
   const provider = new ethers.providers.Web3Provider(
     ganache.provider(options as any) as any
@@ -85,13 +89,11 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     walletAddress,
     swapParam.inputToken,
     swapParam.inputAmount,
-    ethValue,
     wealthyAccounts,
     provider
   );
 
   // to survery why it doesn't work here?
-  // const signer = provider.getSigner(walletAddress || 0);
   const max = ethers.constants.MaxUint256;
   const outputTokenContract = IERC20__factory.connect(
     swapParam.outputToken,
@@ -115,16 +117,9 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     value: BigNumber.from(ethValue),
   };
   // check output token balance before and after
-  const promisesCalls = [];
-  promisesCalls.push(outputTokenContract.balanceOf(walletAddress));
-  promisesCalls.push(provider.estimateGas(tx));
-  promisesCalls.push(provider.getBlockNumber());
-  // promisesCalls.push(provider.getGasPrice());
-  const promisesRes = await Promise.all(promisesCalls);
-  const before = promisesRes[0];
-  const gasLimit = promisesRes[1];
-  // const gasPrice = promisesRes[2];
-  const blockNumber = promisesRes[2] as number;
+  const before = await outputTokenContract.balanceOf(walletAddress);
+  const blockNumber = await provider.getBlockNumber();
+  const gasLimit = await provider.estimateGas(tx);
   const txRes = await signer.sendTransaction({ ...tx, gasLimit });
   const receipt = await txRes.wait();
   const gasUsed = receipt.gasUsed;

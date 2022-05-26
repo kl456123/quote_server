@@ -50,7 +50,7 @@ const nopoolAddrDEX = [
 
   // Polygon
   Protocol.QuickSwap,
-  Protocol.Dfyn
+  Protocol.Dfyn,
 ];
 
 export const quoteHandler = async (

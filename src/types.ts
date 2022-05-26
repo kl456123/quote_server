@@ -1,4 +1,5 @@
-import { BigNumberish } from 'ethers';1
+import { BigNumberish } from 'ethers';
+1;
 
 export enum Protocol {
   UniswapV2,
@@ -35,10 +36,9 @@ export enum Protocol {
   CherrySwap,
   JSwap,
 
-
   // Ploygon
   QuickSwap,
-  Dfyn
+  Dfyn,
   // ApeSwap
 }
 
@@ -69,6 +69,7 @@ export type SwapParam = {
   blockNumber?: number;
   ethValue?: string;
   exchangeAddress?: string;
+  bridge?: number; // swap and bridge to another chain
   tokenApproveAddress?: string;
   walletAddress?: string;
   chainId: ChainId;
