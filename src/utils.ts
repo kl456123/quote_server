@@ -40,7 +40,7 @@ export function getUrl(chainId: ChainId) {
       break;
     }
     case ChainId.OKC: {
-      url = 'https://exchainrpc.okex.org/';
+      url = ' http://35.73.164.192:26659';
       break;
     }
     case ChainId.Polygon: {

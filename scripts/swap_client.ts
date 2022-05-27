@@ -112,6 +112,7 @@ async function testOKC() {
   const ethValue = inputAmount;
   const inputToken = tokens.NativeToken.address; // ETH
   const outputToken = tokens.USDT.address; // USDT
+  const blockNumber = 11318937;
   const bridge = 1;
   const walletAddress = '0xF809B33c4a6E4E188D397688f9218216C52be8b4';
   const calldata =
@@ -125,16 +126,17 @@ async function testOKC() {
     chainId,
     ethValue,
     bridge,
+    blockNumber,
   };
   console.log(swapParam);
   await request(swapParam);
 }
 
 async function main() {
-  // testEthereum();
+  testEthereum();
   testPolygon();
   testAvax();
-  // testOKC();
+  testOKC();
 }
 
 main().catch(console.error);
