@@ -6,9 +6,11 @@ export type Token = {
   address: string;
 };
 
+export const nativeTokenAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
 export const tokensEthereum: Record<string, Token> = {
   NativeToken: {
-    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    address: nativeTokenAddress,
     symbol: 'ETH',
     decimals: 18,
   },
@@ -72,7 +74,7 @@ export const tokensEthereum: Record<string, Token> = {
 
 export const tokensPolygon: Record<string, Token> = {
   NativeToken: {
-    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    address: nativeTokenAddress,
     symbol: 'MATIC',
     decimals: 18,
   },
@@ -105,7 +107,7 @@ export const tokensPolygon: Record<string, Token> = {
 
 export const tokensBSC: Record<string, Token> = {
   NativeToken: {
-    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    address: nativeTokenAddress,
     symbol: 'BNB',
     decimals: 18,
   },
@@ -148,7 +150,7 @@ export const tokensBSC: Record<string, Token> = {
 
 export const tokensOKC: Record<string, Token> = {
   NativeToken: {
-    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    address: nativeTokenAddress,
     symbol: 'OKT',
     decimals: 18,
   },
@@ -191,7 +193,7 @@ export const tokensOKC: Record<string, Token> = {
 
 export const tokensAvax: Record<string, Token> = {
   NativeToken: {
-    address: '0x0000000000000000000000000000000000000000',
+    address: nativeTokenAddress,
     decimals: 18,
     symbol: 'AVAX',
   },

@@ -7,6 +7,7 @@ import {
   tokensBSC,
   tokensOKC,
   tokensAvax,
+  nativeTokenAddress,
 } from './tokens';
 import {
   BINANCE,
@@ -194,9 +195,7 @@ export const wealthyAccountsAVAX: AccountsRecord = {
 
 export function isNativeToken(tokenAddr: string) {
   // no matter with any chain id
-  return (
-    tokenAddr.toLowerCase() === tokensEthereum.NativeToken.address.toLowerCase()
-  );
+  return tokenAddr.toLowerCase() === nativeTokenAddress.toLowerCase();
 }
 
 export const wealthyAccountsByChains: Partial<{

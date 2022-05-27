@@ -24,6 +24,7 @@ router.get('/swap', async ctx => {
     blockNumber: query.blockNumber
       ? parseInt(query.blockNumber as string)
       : undefined,
+    bridge: query.bridge ? parseInt(query.bridge as string) : 0,
     chainId: query.chainId
       ? parseInt(query.chainId as string)
       : ChainId.Ethereum,

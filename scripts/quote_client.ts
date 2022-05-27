@@ -19,7 +19,6 @@ async function request(query: QuoteParam) {
   }
 }
 
-
 async function testUniswapV2() {
   const blockNumber = 14000000;
   const inputAmount = parseUnits('1', 18).toString(); // 1 ETH
@@ -33,7 +32,7 @@ async function testUniswapV2() {
     inputToken,
     outputToken,
     blockNumber,
-    chainId
+    chainId,
   };
   await request(query);
 }
@@ -60,7 +59,7 @@ async function testCurve() {
     outputToken,
     // blockNumber,
     poolAddress,
-    chainId
+    chainId,
   };
   await request(query);
 }
@@ -80,7 +79,7 @@ async function testBalancer() {
     outputToken,
     // blockNumber,
     poolAddress,
-    chainId
+    chainId,
   };
   await request(query);
 }
@@ -100,7 +99,7 @@ async function testBalancerV2() {
     outputToken,
     // blockNumber,
     poolAddress,
-    chainId
+    chainId,
   };
   await request(query);
 }
@@ -120,7 +119,7 @@ async function testKyberNetwork() {
     outputToken,
     blockNumber,
     poolAddress,
-    chainId
+    chainId,
   };
 
   await request(query);
@@ -140,7 +139,7 @@ async function testBancor() {
     inputToken,
     outputToken,
     blockNumber,
-    chainId
+    chainId,
   };
 
   await request(query);
@@ -162,7 +161,7 @@ async function testUniswapV3() {
     outputToken,
     // blockNumber,
     poolAddress,
-    chainId
+    chainId,
   };
   await request(query);
 }
@@ -204,7 +203,6 @@ async function testPancakeSwap() {
   };
   await request(query);
 }
-
 
 ////// for ploygon
 async function testQuickSwap() {
@@ -264,7 +262,7 @@ async function testApeSwap() {
   await request(query);
 }
 
-async function testDefiSwap(){
+async function testDefiSwap() {
   const inputAmount = parseUnits('50', 18).toString(); // 1 ETH
   const protocol = Protocol.DefiSwap;
   const chainId = ChainId.Ethereum;
@@ -275,7 +273,7 @@ async function testDefiSwap(){
     inputAmount,
     inputToken,
     outputToken,
-    chainId
+    chainId,
   };
   await request(query);
 }
