@@ -64,7 +64,7 @@ export type QuoteParam = {
 export type SwapParam = {
   calldata: string;
   inputToken: string;
-  inputAmount: BigNumberish;
+  inputAmount: string;
   outputToken: string;
   blockNumber?: number;
   ethValue?: string;
@@ -84,8 +84,12 @@ export type QuoteResponse = {
 };
 
 export type SwapResponse = {
+  inputToken: string;
+  outputToken: string;
+  inputAmount: string;
   outputAmount: string;
   gasUsed: string;
   gasLimit: string;
   blockNumber: number;
+  chainId: number;
 };

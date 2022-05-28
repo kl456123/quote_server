@@ -38,6 +38,11 @@ router.get('/swap', async ctx => {
   } catch (error) {
     ctx.body = {
       error: `${error}`,
+      inputToken: swapParam.inputToken,
+      outputToken: swapParam.outputToken,
+      inputAmount: swapParam.inputAmount,
+      blockNumber: swapParam.blockNumber,
+      chainId: swapParam.chainId,
     };
     ctx.status = 400;
     logger.info('query: ', query);

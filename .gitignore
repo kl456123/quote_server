@@ -4,3 +4,4 @@ src/typechain/*
 cache/*
 yarn-error.log
 nohup.out
+results/*

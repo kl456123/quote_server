@@ -71,8 +71,8 @@ async function testEthereum() {
   const amount = '10';
   const tokens = tokensByChain[ChainId.Ethereum]!;
   const inputAmount = ethers.utils.parseUnits(amount, 6).toString();
-  const inputToken = tokens.USDC.address; // USDC
-  const outputToken = tokens.WETH.address; //WETH
+  const inputToken = tokens.USDT.address; // USDC
+  const outputToken = tokens.USDC.address; //WETH
   const walletAddress = '0xbD11861D13caFa8Ad6e143DA7034f8A907CD47a8';
   // const chainId = 56;// BSC
   // const chainId = 66;// OKC
@@ -166,11 +166,11 @@ async function testUnxswap() {
 }
 
 async function main() {
-  // testEthereum();
+  testEthereum();
   // testPolygon();
   // testAvax();
   // testSmartSwap();
-  testUnxswap();
+  // testUnxswap();
 }
 
 main().catch(console.error);

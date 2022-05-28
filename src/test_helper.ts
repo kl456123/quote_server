@@ -14,6 +14,8 @@ import {
   BINANCE8,
   MULTICHAIN,
   BINANCE6BSC,
+  CIRCLE,
+  BITFINEX,
   WealthyOKC,
 } from './constants';
 import { ChainId } from './types';
@@ -45,7 +47,7 @@ export type AccountsRecord = Record<
 export const wealthyAccountsEthereum: AccountsRecord = {
   USDC: {
     contract: tokensEthereum.USDC.address,
-    holder: BINANCE7,
+    holder: CIRCLE,
   },
   WETH: {
     contract: tokensEthereum.WETH.address,
@@ -57,7 +59,7 @@ export const wealthyAccountsEthereum: AccountsRecord = {
   },
   USDT: {
     contract: tokensEthereum.USDT.address,
-    holder: BINANCE,
+    holder: BITFINEX,
   },
   UNI: {
     contract: tokensEthereum.UNI.address,

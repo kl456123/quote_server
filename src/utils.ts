@@ -33,7 +33,7 @@ export function getUrl(chainId: ChainId) {
   let url;
   switch (chainId) {
     case ChainId.Ethereum: {
-      url = alchemyUrl;
+      url = 'http://35.75.165.133:8545';
       break;
     }
     case ChainId.BSC: {

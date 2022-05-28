@@ -134,9 +134,13 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const outputAmount = after.sub(before);
 
   return {
+    inputAmount: swapParam.inputAmount,
     outputAmount: outputAmount.toString(),
+    inputToken: swapParam.inputToken, // lowercase already
+    outputToken: swapParam.outputToken, // lowercase already
     gasUsed: gasUsed.toString(),
     gasLimit: gasLimit.toString(),
     blockNumber,
+    chainId: swapParam.chainId,
   };
 }
