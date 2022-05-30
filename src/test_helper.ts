@@ -39,6 +39,18 @@ export async function impersonateAndTransfer(
   }
 }
 
+// add handler for native token
+export async function getBalance(tokenAddr: string, walletAddr: string, provider: ethers.providers.JsonRpcProvider){
+    if(isNativeToken(tokenAddr)){
+        return provider.getBalance(walletAddr);
+    }
+    const tokenContract = IERC20__factory.connect(
+    tokenAddr,
+    provider
+  );
+    return tokenContract.balanceOf(walletAddr);
+}
+
 export type AccountsRecord = Record<
   string,
   { contract: string; holder: string }

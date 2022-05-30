@@ -5,3 +5,4 @@ cache/*
 yarn-error.log
 nohup.out
 results/*
+.DS_Store
