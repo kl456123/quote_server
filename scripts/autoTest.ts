@@ -96,8 +96,7 @@ async function executeSingleTest(
       error: 'cannot find any route path',
     };
   }
-  let receiveAmount;
-  receiveAmount = ethers.utils
+  const receiveAmount = ethers.utils
     .parseUnits(response.data.result.receiveAmount, toTokenDecimal)
     .toString();
 
@@ -120,13 +119,6 @@ async function executeAllTest(
   tokensMap: OKTokenMap,
   chainId: ChainId
 ) {
-  // const tokensMap: OKTokenMap = okTokens.reduce(
-  // (res: OKTokenMap, cur: OKToken) => {
-  // res[cur.address.toLowerCase()] = cur;
-  // return res;
-  // },
-  // {}
-  // );
   // test all ok tokens paired with some stable coins for convenience, swap stable coins for all
   // ok tokens so that we just need to prepare stable tokens only
   const fromTokens = [
@@ -161,13 +153,12 @@ async function executeAllTest(
   // prefer larger amount to test
   const amounts = ['10000', '100000', '1000000', '10000000', '100000000'];
   for (let i = 0; i < toTokens.length; ++i) {
+      // select input by random
     const randAmountInd = Math.floor(Math.random() * amounts.length);
     const amount = amounts[randAmountInd];
     const outputToken = toTokens[i];
     const randInd = Math.floor(Math.random() * fromTokens.length);
     const inputToken = fromTokens[randInd];
-    // const inputToken =
-    // wealthyAccountsEthereum.NativeToken.contract.toLowerCase();
 
     const inputOKToken = tokensMap[inputToken];
     const outputOKToken = tokensMap[outputToken.address.toLowerCase()];
@@ -218,6 +209,7 @@ async function main() {
   // ethereum only
   await executeAllTest(okTokens, tokensMap, chainId);
 
+  // test for single case
   // const tokens = tokensByChain[chainId]!;
   // const amount = '100000';
   // tokens.NativeToken.address.toLowerCase();
