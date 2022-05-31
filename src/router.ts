@@ -14,20 +14,25 @@ router.get('/', async ctx => {
 
 router.get('/swap', async ctx => {
   const query = ctx.query;
+  const chainId = query.chainId
+    ? parseInt(query.chainId as string)
+    : ChainId.Ethereum;
+  const provider = getProvider(chainId);
+  const blockNumber = query.blockNumber
+    ? parseInt(query.blockNumber as string)
+    : await provider.getBlockNumber();
+  const calldata = query.calldata as string;
   const swapParam: SwapParam = {
-    calldata: query.calldata as string,
+    calldata,
     inputToken: (query.inputToken as string).toLowerCase(), // lowercase for address
     inputAmount: query.inputAmount as string,
     outputToken: (query.outputToken as string).toLowerCase(),
     walletAddress: (query.walletAddress as string).toLowerCase(),
     ethValue: query.ethValue as string | undefined,
-    blockNumber: query.blockNumber
-      ? parseInt(query.blockNumber as string)
-      : undefined,
-    chainId: query.chainId
-      ? parseInt(query.chainId as string)
-      : ChainId.Ethereum,
+    blockNumber,
+    chainId,
   };
+
   try {
     const swapResponse = await swapHandler(swapParam);
     ctx.body = swapResponse;
@@ -41,8 +46,9 @@ router.get('/swap', async ctx => {
       inputToken: swapParam.inputToken,
       outputToken: swapParam.outputToken,
       inputAmount: swapParam.inputAmount,
-      blockNumber: swapParam.blockNumber,
-      chainId: swapParam.chainId,
+      blockNumber,
+      chainId,
+      calldata,
     };
     ctx.status = 400;
     logger.info('query: ', query);

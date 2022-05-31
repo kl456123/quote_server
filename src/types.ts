@@ -88,6 +88,7 @@ export type SwapResponse = {
   outputToken: string;
   inputAmount: string;
   outputAmount: string;
+  calldata: string;
   gasUsed: string;
   gasLimit: string;
   blockNumber: number;

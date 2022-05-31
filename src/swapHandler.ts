@@ -10,7 +10,7 @@ import {
   AccountsRecord,
   // impersonateAccount,
   wealthyAccountsByChains,
-    getBalance,
+  getBalance,
 } from './test_helper';
 
 function getDefaultEOA() {
@@ -95,8 +95,8 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   // const signer = provider.getSigner(walletAddress || 0);
   const max = ethers.constants.MaxUint256;
   // const outputTokenContract = IERC20__factory.connect(
-    // swapParam.outputToken,
-    // provider
+  // swapParam.outputToken,
+  // provider
   // );
 
   // approve dexRouter for input token
@@ -117,7 +117,9 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   };
   // check output token balance before and after
   const promisesCalls = [];
-  promisesCalls.push(getBalance(swapParam.outputToken, walletAddress, provider));
+  promisesCalls.push(
+    getBalance(swapParam.outputToken, walletAddress, provider)
+  );
   promisesCalls.push(provider.estimateGas(tx));
   promisesCalls.push(provider.getBlockNumber());
   // promisesCalls.push(provider.getGasPrice());
@@ -131,7 +133,11 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
   const gasUsed = receipt.gasUsed;
 
   // check balance again
-  const after = await getBalance(swapParam.outputToken, walletAddress, provider);
+  const after = await getBalance(
+    swapParam.outputToken,
+    walletAddress,
+    provider
+  );
   const outputAmount = after.sub(before);
 
   return {
@@ -143,5 +149,6 @@ export async function swapHandler(swapParam: SwapParam): Promise<SwapResponse> {
     gasLimit: gasLimit.toString(),
     blockNumber,
     chainId: swapParam.chainId,
+    calldata: swapParam.calldata,
   };
 }

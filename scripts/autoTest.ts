@@ -52,7 +52,8 @@ function readTokens(path: string) {
 async function executeSingleTest(
   amount: string,
   inputOKToken: OKToken,
-  outputOKToken: OKToken
+  outputOKToken: OKToken,
+  chainId: ChainId
 ) {
   const fromCoinId = inputOKToken.coinId;
   const fromTokenDecimal = inputOKToken.decimals;
@@ -71,7 +72,7 @@ async function executeSingleTest(
     amount,
     fromCoinId,
     toCoinId,
-    chainId: 1,
+    chainId: 1, // Ethereum mainnet
     toTokenDecimal,
     fromTokenDecimal,
     toTokenAddress: outputToken,
@@ -91,11 +92,12 @@ async function executeSingleTest(
       inputToken,
       outputToken,
       inputAmount,
-      chainId: ChainId.Ethereum,
-      error: 'cannot found any route path',
+      chainId,
+      error: 'cannot find any route path',
     };
   }
-  const receiveAmount = ethers.utils
+  let receiveAmount;
+  receiveAmount = ethers.utils
     .parseUnits(response.data.result.receiveAmount, toTokenDecimal)
     .toString();
 
@@ -105,7 +107,7 @@ async function executeSingleTest(
     inputToken,
     outputToken,
     inputAmount,
-    chainId: ChainId.Ethereum,
+    chainId,
     ethValue,
   };
   // console.log(swapParam);
@@ -113,14 +115,18 @@ async function executeSingleTest(
   return { ...swapResult, receiveAmount };
 }
 
-async function executeAllTest(okTokens: OKToken[]) {
-  const tokensMap: OKTokenMap = okTokens.reduce(
-    (res: OKTokenMap, cur: OKToken) => {
-      res[cur.address.toLowerCase()] = cur;
-      return res;
-    },
-    {}
-  );
+async function executeAllTest(
+  okTokens: OKToken[],
+  tokensMap: OKTokenMap,
+  chainId: ChainId
+) {
+  // const tokensMap: OKTokenMap = okTokens.reduce(
+  // (res: OKTokenMap, cur: OKToken) => {
+  // res[cur.address.toLowerCase()] = cur;
+  // return res;
+  // },
+  // {}
+  // );
   // test all ok tokens paired with some stable coins for convenience, swap stable coins for all
   // ok tokens so that we just need to prepare stable tokens only
   const fromTokens = [
@@ -173,8 +179,10 @@ async function executeAllTest(okTokens: OKToken[]) {
     if (!inputOKToken) {
       throw new Error(`unknown input token: ${inputToken}`);
     }
-    swapPromises.push(executeSingleTest(amount, inputOKToken, outputOKToken));
-    if (swapPromises.length % batchSize == 0) {
+    swapPromises.push(
+      executeSingleTest(amount, inputOKToken, outputOKToken, chainId)
+    );
+    if (swapPromises.length % batchSize == 0 || toTokens.length - 1 === i) {
       const swapResultsPerBatch = await Promise.all(swapPromises);
       logger.info(`processing ${i + 1} of txs`);
       swapResults.push(...swapResultsPerBatch);
@@ -197,7 +205,7 @@ async function executeAllTest(okTokens: OKToken[]) {
 
 async function main() {
   const okTokens = readTokens(
-    '/Users/oker//Desktop/dex_multi_token_info.csv'
+    `${process.env.TOKENLIST_PATH}`
   ).filter(token => token.chainId === 1);
   const chainId = ChainId.Ethereum;
   const tokensMap: OKTokenMap = okTokens.reduce(
@@ -208,14 +216,14 @@ async function main() {
     {}
   );
   // ethereum only
-  const tokens = tokensByChain[chainId]!;
+  await executeAllTest(okTokens, tokensMap, chainId);
 
-  await executeAllTest(okTokens);
-  // const amount = '10';
+  // const tokens = tokensByChain[chainId]!;
+  // const amount = '100000';
   // tokens.NativeToken.address.toLowerCase();
-  // const inputOKToken = tokensMap['0x6b175474e89094c44da98b954eedeac495271d0f'.toLowerCase()];
-  // const outputOKToken = tokensMap['0x75231f58b43240c9718dd58b4967c5114342a86c'];
-  // const swapResult = await executeSingleTest(amount, inputOKToken, outputOKToken);
+  // const inputOKToken = tokensMap['0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'.toLowerCase()];
+  // const outputOKToken = tokensMap['0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f'];
+  // const swapResult = await executeSingleTest(amount, inputOKToken, outputOKToken, chainId);
   // console.log(swapResult);
 }
 
